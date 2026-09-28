@@ -170,10 +170,3 @@ Every push to the main branch redeploys the site automatically.
 | white | `#FFFFFF` |
 
 Defined in `frontend/tailwind.config.js`.
-
-## Next steps
-
-- Replace placeholder data with real researchers, projects, publications,
-  and news through the admin dashboard.
-- Fill in the placeholder text on the About and Facilities pages.
-- Continue the page-by-page polish pass.
