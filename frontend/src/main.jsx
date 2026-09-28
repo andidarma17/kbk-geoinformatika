@@ -5,7 +5,7 @@ import Layout from "./components/Layout.jsx";
 import Home from "./pages/Home.jsx";
 import About from "./pages/About.jsx";
 import Research from "./pages/Research.jsx";
-import AdminApp from "./admin/adminApp.jsx";
+import AdminApp from "./admin/AdminApp.jsx";
 import People from "./pages/People.jsx";
 import PersonDetail from "./pages/PersonDetail.jsx";
 import Projects from "./pages/Projects.jsx";
