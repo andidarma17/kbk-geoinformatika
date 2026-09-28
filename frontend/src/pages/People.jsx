@@ -36,7 +36,7 @@ export default function People() {
             People
           </h1>
           <p className="mt-5 text-[17px] text-blue-100/80">
-            Faculty, researchers, and students working across our research areas.
+            Lecturers, researchers, and students working across our research areas.
           </p>
         </div>
       </section>

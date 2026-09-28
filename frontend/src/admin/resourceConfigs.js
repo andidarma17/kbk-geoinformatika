@@ -26,8 +26,13 @@ export const resourceConfigs = {
     fields: [
       { key: "name", label: "Name", type: "text", required: true },
       { key: "role", label: "Role", type: "text" },
+      {
+        key: "education",
+        label: "Education (one entry per line)",
+        type: "textarea",
+      },
       { key: "research_area_id", label: "Research Area", type: "area-select" },
-      { key: "interests", label: "Interests", type: "text" },
+      { key: "interests", label: "Interests", type: "textarea" },
       { key: "email", label: "Email", type: "text" },
       { key: "orcid", label: "ORCID", type: "text" },
       { key: "scholar_url", label: "Google Scholar URL", type: "text" },
@@ -54,6 +59,11 @@ export const resourceConfigs = {
       { key: "summary", label: "Summary", type: "textarea" },
       { key: "study_area", label: "Study Area", type: "text" },
       { key: "methodology", label: "Methodology", type: "text" },
+      {
+        key: "researcher_ids",
+        label: "Researchers",
+        type: "researcher-multiselect",
+      },
     ],
   },
   publications: {
@@ -71,6 +81,11 @@ export const resourceConfigs = {
       { key: "research_area_id", label: "Research Area", type: "area-select" },
       { key: "doi_url", label: "DOI URL", type: "text" },
       { key: "pdf_url", label: "PDF URL", type: "text" },
+      {
+        key: "researcher_ids",
+        label: "Researchers",
+        type: "researcher-multiselect",
+      },
     ],
   },
   news: {

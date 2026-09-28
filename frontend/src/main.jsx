@@ -7,6 +7,7 @@ import About from "./pages/About.jsx";
 import Research from "./pages/Research.jsx";
 import AdminApp from "./admin/adminApp.jsx";
 import People from "./pages/People.jsx";
+import PersonDetail from "./pages/PersonDetail.jsx";
 import Projects from "./pages/Projects.jsx";
 import Publications from "./pages/Publications.jsx";
 import News from "./pages/News.jsx";
@@ -26,6 +27,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="research" element={<Research />} />
           <Route path="research/:slug" element={<ResearchAreaDetail />} />
           <Route path="people" element={<People />} />
+          <Route path="people/:id" element={<PersonDetail />} />
           <Route path="projects" element={<Projects />} />
           <Route path="publications" element={<Publications />} />
           <Route path="news" element={<News />} />

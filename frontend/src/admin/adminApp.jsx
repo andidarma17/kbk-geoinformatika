@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { adminApi } from "./adminApi";
+import { adminApi } from "./AdminApi";
 import { api } from "../api";
 import { resourceConfigs } from "./resourceConfigs";
 import ResourceManager from "./ResourceManager";
@@ -9,6 +9,7 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [researchers, setResearchers] = useState([]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -108,14 +109,18 @@ export default function AdminApp() {
   const [session, setSession] = useState(undefined); // undefined = still checking
   const [tab, setTab] = useState("research-areas");
   const [areas, setAreas] = useState([]);
+  const [researchers, setResearchers] = useState([]);   
 
   useEffect(() => {
     adminApi.getSession().then(setSession);
     return adminApi.onAuthChange(setSession);
   }, []);
 
-  useEffect(() => {
-    if (session) api.getResearchAreas().then(setAreas).catch(() => {});
+    useEffect(() => {
+    if (session) {
+      api.getResearchAreas().then(setAreas).catch(() => {});
+      api.getResearchers().then(setResearchers).catch(() => {});
+    }
   }, [session, tab]);
 
   useEffect(() => {
@@ -162,7 +167,7 @@ export default function AdminApp() {
         {tab === "settings" ? (
           <ChangePasswordForm />
         ) : (
-          <ResourceManager resource={tab} config={resourceConfigs[tab]} areas={areas} />
+          <ResourceManager resource={tab} config={resourceConfigs[tab]} areas={areas} researchers={researchers} />
         )}
       </main>
     </div>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { adminApi } from "./adminApi";
+import { adminApi } from "./AdminApi";
 
-export default function ResourceManager({ resource, config, areas }) {
+export default function ResourceManager({ resource, config, areas, researchers }) {
   const readOnly = config.fields.length === 0;
   const [items, setItems] = useState([]);
   const [editing, setEditing] = useState(null); // null = not editing, {} = new, object = editing
@@ -90,7 +90,11 @@ export default function ResourceManager({ resource, config, areas }) {
             {config.fields.map((field) => (
               <div
                 key={field.key}
-                className={field.type === "textarea" ? "sm:col-span-2" : ""}
+               className={
+  field.type === "textarea" || field.type === "researcher-multiselect"
+    ? "sm:col-span-2"
+    : ""
+}
               >
                 <label className="block text-xs font-semibold text-gray-500 mb-1">
                   {field.label}
@@ -130,6 +134,34 @@ export default function ResourceManager({ resource, config, areas }) {
                       </option>
                     ))}
                   </select>
+                                  ) : field.type === "researcher-multiselect" ? (
+                  <div className="border border-gray-300 rounded-md p-3 max-h-48 overflow-y-auto grid sm:grid-cols-2 gap-x-4 gap-y-1.5">
+                    {researchers.map((r) => {
+                      const selected = form.researcher_ids || [];
+                      const checked = selected.includes(r.id);
+                      return (
+                        <label key={r.id} className="flex items-center gap-2 text-sm">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() =>
+                              handleChange(
+                                "researcher_ids",
+                                checked ? selected.filter((x) => x !== r.id) : [...selected, r.id]
+                              )
+                            }
+                          />
+                          <span>
+                            {r.name}
+                            {r.role ? ` (${r.role})` : ""}
+                          </span>
+                        </label>
+                      );
+                    })}
+                    {researchers.length === 0 && (
+                      <span className="text-sm text-gray-400">Add researchers first.</span>
+                    )}
+                  </div>
                 ) : (
                   <input
                     type={field.type === "number" ? "number" : "text"}

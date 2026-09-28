@@ -19,7 +19,7 @@ export default function About() {
           <p className="mt-5 text-[17px] text-blue-100/80">
             KBK Geoinformatika (Kelompok Bidang Keahlian Geoinformatika) is the
             geoinformatics research group within the Department of Geodetic
-            Engineering, Faculty of Engineering, Universitas Gadjah Mada.
+            Engineering, Faculty of Engineering, Universitas Gadjah Mada. KBK Geoinformatika is a merger of the Cadastre and Geoinformatics Engineering (CAGE) and Photogrammetry and Remote Sensing (FERS) KBKs.
           </p>
         </div>
       </section>
@@ -29,20 +29,13 @@ export default function About() {
           <div className="bg-white border border-gray-200 rounded-lg p-7">
             <h2 className="text-xl font-bold mb-3">Mission</h2>
             <p className="text-gray-500 text-[15px]">
-              [Placeholder] To advance geospatial science through rigorous
-              research in geoinformatics, photogrammetry, and remote sensing,
-              and to apply that research to real challenges in urban
-              planning, environmental monitoring, and maritime governance in
-              Indonesia and beyond.
+              To develop innovative technologies in photogrammetry, remote sensing, cadastral surveying, and geoinformation that are competitive at the international level and contribute to problem-solving through the three pillars of higher education: education, research, and community service.
             </p>
           </div>
           <div className="bg-white border border-gray-200 rounded-lg p-7">
             <h2 className="text-xl font-bold mb-3">Vision</h2>
             <p className="text-gray-500 text-[15px]">
-              [Placeholder] To be a recognized center of geoinformatics
-              research and education, producing graduates and research
-              outputs that shape how spatial data is collected, analyzed, and
-              used for public benefit.
+              To become a leading and innovative center of expertise in education, research, and the development of cutting-edge geospatial technologies in the fields of photogrammetry, remote sensing, cadastral surveying, and geoinformation/geoinformatics—one that is characterized by integrity, adaptability, and tangible impact through global collaboration and data-driven decision-making.
             </p>
           </div>
         </div>

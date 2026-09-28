@@ -2,18 +2,43 @@ import { supabase } from "../supabaseClient";
 
 // Admin tabs use hyphenated names ("research-areas"); tables use underscores.
 const toTable = (resource) => resource.replaceAll("-", "_");
+
+// Tables whose rows can be linked to researchers, and their junction tables.
+const LINKS = {
+  projects: { junction: "project_researchers", fk: "project_id" },
+  publications: { junction: "publication_researchers", fk: "publication_id" },
+};
 const WITH_AREA = new Set(["researchers", "projects", "publications"]);
 
-const flatten = (rows) =>
-  rows.map((row) => {
-    if (!("research_areas" in row)) return row;
-    const { research_areas, ...rest } = row;
-    return { ...rest, area_name: research_areas?.name ?? null };
+function selectFor(table) {
+  if (!WITH_AREA.has(table)) return "*";
+  const link = LINKS[table];
+  return link
+    ? `*, research_areas(name), ${link.junction}(researcher_id)`
+    : "*, research_areas(name)";
+}
+
+// Turns embedded rows into the flat fields the admin forms use.
+function flatten(table, rows) {
+  const link = LINKS[table];
+  return rows.map((row) => {
+    const out = { ...row };
+    if ("research_areas" in out) {
+      out.area_name = out.research_areas?.name ?? null;
+      delete out.research_areas;
+    }
+    if (link && link.junction in out) {
+      out.researcher_ids = out[link.junction].map((j) => j.researcher_id);
+      delete out[link.junction];
+    }
+    return out;
   });
+}
 
 // Strips display-only fields and normalizes form values for the database.
 function clean(data) {
-  const { id, area_name, research_areas, created_at, ...rest } = data;
+  const { id, area_name, research_areas, created_at, researcher_ids, ...rest } =
+    data;
   if (typeof rest.tags === "string") {
     rest.tags = rest.tags
       .split(",")
@@ -28,6 +53,27 @@ function clean(data) {
   }
   if ("published_at" in rest && !rest.published_at) delete rest.published_at;
   return rest;
+}
+
+// Replaces the researcher links for one project/publication.
+async function syncLinks(table, id, researcherIds) {
+  const link = LINKS[table];
+  if (!link || !Array.isArray(researcherIds)) return;
+
+  const { error: delError } = await supabase
+    .from(link.junction)
+    .delete()
+    .eq(link.fk, id);
+  if (delError) throw new Error(delError.message);
+
+  if (researcherIds.length) {
+    const rows = researcherIds.map((rid) => ({
+      [link.fk]: id,
+      researcher_id: rid,
+    }));
+    const { error } = await supabase.from(link.junction).insert(rows);
+    if (error) throw new Error(error.message);
+  }
 }
 
 export const adminApi = {
@@ -50,7 +96,6 @@ export const adminApi = {
     return () => data.subscription.unsubscribe();
   },
 
-  // Re-checks the current password by signing in again, then updates it.
   changePassword: async (currentPassword, newPassword) => {
     if (newPassword.length < 8)
       throw new Error("New password must be at least 8 characters");
@@ -67,25 +112,29 @@ export const adminApi = {
 
   list: async (resource) => {
     const table = toTable(resource);
-    const select = WITH_AREA.has(table) ? "*, research_areas(name)" : "*";
     const { data, error } = await supabase
       .from(table)
-      .select(select)
+      .select(selectFor(table))
       .order("id", { ascending: false });
     if (error) throw new Error(error.message);
-    return flatten(data);
+    return flatten(table, data);
   },
 
   create: async (resource, data) => {
-    const { error } = await supabase
-      .from(toTable(resource))
-      .insert(clean(data));
+    const table = toTable(resource);
+    const { data: row, error } = await supabase
+      .from(table)
+      .insert(clean(data))
+      .select("id")
+      .single();
     if (error) throw new Error(error.message);
+    await syncLinks(table, row.id, data.researcher_ids);
   },
 
   update: async (resource, id, data) => {
+    const table = toTable(resource);
     const { data: rows, error } = await supabase
-      .from(toTable(resource))
+      .from(table)
       .update(clean(data))
       .eq("id", id)
       .select("id");
@@ -94,6 +143,7 @@ export const adminApi = {
       throw new Error(
         "Update was not allowed. Are you signed in as the admin?",
       );
+    await syncLinks(table, id, data.researcher_ids);
   },
 
   remove: async (resource, id) => {
