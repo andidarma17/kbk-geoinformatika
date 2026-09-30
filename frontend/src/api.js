@@ -82,6 +82,30 @@ export const api = {
       ),
     ),
 
+  // One project with its linked researchers (used by the project detail page)
+  getProject: async (id) => {
+    const row = check(
+      await supabase
+        .from("projects")
+        .select(
+          `*, research_areas(name, slug),
+           project_researchers(researchers(id, name, role))`,
+        )
+        .eq("id", id)
+        .maybeSingle(),
+    );
+    if (!row) return null;
+    const { research_areas, project_researchers, ...rest } = row;
+    return {
+      ...rest,
+      area_name: research_areas?.name ?? null,
+      area_slug: research_areas?.slug ?? null,
+      researchers: project_researchers
+        .map((x) => x.researchers)
+        .filter(Boolean),
+    };
+  },
+
   getPublications: async () =>
     flatten(
       check(
@@ -91,6 +115,30 @@ export const api = {
           .order("year", { ascending: false }),
       ),
     ),
+
+  // One publication with its linked researchers (used by the publication detail page)
+  getPublication: async (id) => {
+    const row = check(
+      await supabase
+        .from("publications")
+        .select(
+          `*, research_areas(name, slug),
+           publication_researchers(researchers(id, name, role))`,
+        )
+        .eq("id", id)
+        .maybeSingle(),
+    );
+    if (!row) return null;
+    const { research_areas, publication_researchers, ...rest } = row;
+    return {
+      ...rest,
+      area_name: research_areas?.name ?? null,
+      area_slug: research_areas?.slug ?? null,
+      researchers: publication_researchers
+        .map((x) => x.researchers)
+        .filter(Boolean),
+    };
+  },
 
   getNews: async () =>
     check(

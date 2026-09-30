@@ -14,6 +14,8 @@ import News from "./pages/News.jsx";
 import Facilities from "./pages/Facilities.jsx";
 import Contact from "./pages/Contact.jsx";
 import ResearchAreaDetail from "./pages/ResearchAreaDetail.jsx";
+import ProjectDetail from "./pages/ProjectDetail.jsx";
+import PublicationDetail from "./pages/PublicationDetail.jsx";
 import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
@@ -29,7 +31,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="people" element={<People />} />
           <Route path="people/:id" element={<PersonDetail />} />
           <Route path="projects" element={<Projects />} />
+          <Route path="projects/:id" element={<ProjectDetail />} />
           <Route path="publications" element={<Publications />} />
+          <Route path="publications/:id" element={<PublicationDetail />} />
           <Route path="news" element={<News />} />
           <Route path="facilities" element={<Facilities />} />
           <Route path="contact" element={<Contact />} />

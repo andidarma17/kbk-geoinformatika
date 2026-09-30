@@ -1,12 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../api";
+import { Link } from "react-router-dom";
 import SectionHeader from "../components/SectionHeader";
 
 function ProjectDetailCard({ project }) {
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6">
+    <Link
+      to={`/projects/${project.id}`}
+      className="group block bg-white border border-gray-200 rounded-lg p-6 hover:border-navy transition-colors"
+    >
       <div className="flex flex-wrap items-start justify-between gap-3 mb-2">
-        <h3 className="text-[17px] font-bold">{project.title}</h3>
+        <h3 className="text-[17px] font-bold group-hover:text-navy group-hover:underline">
+          {project.title}
+        </h3>
         <span
           className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap ${
             project.status === "Active" ? "bg-amber/20 text-amber-dark" : "bg-gray-100 text-gray-500"
@@ -19,14 +25,9 @@ function ProjectDetailCard({ project }) {
         {project.area_name} &middot; {project.year}
         {project.study_area && <> &middot; {project.study_area}</>}
       </div>
-      <p className="text-[14.5px] text-gray-600 mb-3">{project.summary}</p>
-      {project.methodology && (
-        <div className="text-[13px] text-gray-500">
-          <span className="font-semibold text-gray-700">Methodology: </span>
-          {project.methodology}
-        </div>
-      )}
-    </div>
+      <p className="text-[14.5px] text-gray-600 mb-3 line-clamp-3">{project.summary}</p>
+      <span className="text-[13px] font-semibold text-navy">View details →</span>
+    </Link>
   );
 }
 

@@ -1,11 +1,27 @@
 import SectionHeader from "../components/SectionHeader";
 import MockFlag from "../components/MockFlag";
+import LabCard from "../components/LabCard";
+
+// Put photos in frontend/public/labs/ and reference them as "/labs/xxx.jpg"
+const labs = [
+  {
+    name: "Laboratory of Geoinformatics",
+    image: "/labs/geoinformatics.jpg",
+    description:
+      "[Placeholder] Spatial database management, GIS analysis, cadastral and address data work, and WebGIS development.",
+    focus: ["GIS", "Cadastre", "WebGIS"]
+  },
+  {
+    name: "Laboratory of Photogrammetry and Remote Sensing",
+    image: "/labs/photogrammetry-rs.jpg",
+    description:
+      "[Placeholder] UAV photogrammetry, satellite image processing, and time-series analysis of land and coastal change.",
+    focus: ["Photogrammetry", "Remote Sensing", "UAV"]
+  }
+];
 
 const categories = [
-  {
-    title: "GIS Software",
-    items: ["ArcGIS Pro", "QGIS", "PostGIS", "GeoServer"]
-  },
+  { title: "GIS Software", items: ["ArcGIS Pro", "QGIS", "PostGIS", "GeoServer"] },
   {
     title: "Remote Sensing & Image Processing",
     items: ["Google Earth Engine", "ENVI", "SNAP (Sentinel Application Platform)", "ERDAS Imagine"]
@@ -52,7 +68,7 @@ export default function Facilities() {
             Facilities &amp; Resources
           </h1>
           <p className="mt-5 text-[17px] text-blue-100/80">
-            Software, equipment, and data resources supporting our research in geoinformatics, photogrammetry, and remote sensing.
+            Laboratories, software, equipment, and data resources supporting our research in geoinformatics, photogrammetry, and remote sensing.
           </p>
         </div>
       </section>
@@ -60,14 +76,29 @@ export default function Facilities() {
       <section className="py-16">
         <div className="max-w-6xl mx-auto px-6 md:px-8">
           <SectionHeader
+            kicker="Laboratories"
+            title="Our labs"
+            description="Two laboratories host the group's research and teaching."
+          />
+          
+          <div className="grid md:grid-cols-2 gap-6">
+            {labs.map((lab) => (
+              <LabCard key={lab.name} lab={lab} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white border-t border-gray-200 py-16">
+        <div className="max-w-6xl mx-auto px-6 md:px-8">
+          <SectionHeader
             kicker="Resources"
             title="What we work with"
             description="Only categories that genuinely apply to the group are listed here — replace placeholder items with actual inventory."
           />
-          <MockFlag />
           <div className="grid md:grid-cols-2 gap-6">
             {categories.map((cat) => (
-              <div key={cat.title} className="bg-white border border-gray-200 rounded-lg p-6">
+              <div key={cat.title} className="bg-gray-50 border border-gray-200 rounded-lg p-6">
                 <h3 className="text-[16px] font-bold mb-3">{cat.title}</h3>
                 <ul className="space-y-1.5">
                   {cat.items.map((item) => (

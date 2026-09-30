@@ -57,6 +57,11 @@ export const resourceConfigs = {
       },
       { key: "research_area_id", label: "Research Area", type: "area-select" },
       { key: "summary", label: "Summary", type: "textarea" },
+      {
+        key: "description",
+        label: "Description (detailed, optional)",
+        type: "textarea",
+      },
       { key: "study_area", label: "Study Area", type: "text" },
       { key: "methodology", label: "Methodology", type: "text" },
       {
@@ -78,6 +83,7 @@ export const resourceConfigs = {
       { key: "authors", label: "Authors", type: "text" },
       { key: "year", label: "Year", type: "number" },
       { key: "venue", label: "Venue", type: "text" },
+      { key: "abstract", label: "Abstract", type: "textarea" },
       { key: "research_area_id", label: "Research Area", type: "area-select" },
       { key: "doi_url", label: "DOI URL", type: "text" },
       { key: "pdf_url", label: "PDF URL", type: "text" },
@@ -93,10 +99,12 @@ export const resourceConfigs = {
     columns: [
       { key: "title", label: "Title" },
       { key: "published_at", label: "Published" },
+      { key: "link", label: "Link" },
     ],
     fields: [
       { key: "title", label: "Title", type: "text", required: true },
       { key: "body", label: "Body", type: "textarea" },
+      { key: "link", label: "News link (https://...)", type: "text" },
       {
         key: "published_at",
         label: "Published date (YYYY-MM-DD)",

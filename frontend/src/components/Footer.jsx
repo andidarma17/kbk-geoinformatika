@@ -21,7 +21,7 @@ export default function Footer() {
             <h4 className="text-[13px] text-gray-500 font-semibold mb-3.5">Explore</h4>
             <a href="/research" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">Research</a>
             <a href="/people" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">People</a>
-            <a href="/rojects" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">Projects</a>
+            <a href="/projects" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">Projects</a>
             <a href="/publications" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">Publications</a>
           </div>
           <div>

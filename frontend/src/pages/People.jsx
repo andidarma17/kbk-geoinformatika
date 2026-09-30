@@ -3,9 +3,33 @@ import { api } from "../api";
 import SectionHeader from "../components/SectionHeader";
 import PersonCard from "../components/PersonCard";
 
+function FilterGroup({ label, options, value, onChange, activeClass }) {
+  return (
+    <div>
+      <div className="text-xs font-semibold text-gray-500 uppercase mb-2">{label}</div>
+      <div className="flex flex-wrap gap-2">
+        {options.map((opt) => (
+          <button
+            key={opt}
+            onClick={() => onChange(opt)}
+            className={`text-[13.5px] font-semibold px-4 py-1.5 rounded-full border transition-colors ${
+              value === opt
+                ? activeClass
+                : "text-gray-500 border-gray-300 hover:border-navy hover:text-navy"
+            }`}
+          >
+            {opt}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function People() {
   const [researchers, setResearchers] = useState([]);
-  const [filter, setFilter] = useState("All");
+  const [roleFilter, setRoleFilter] = useState("All");
+  const [areaFilter, setAreaFilter] = useState("All");
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -17,8 +41,20 @@ export default function People() {
     return ["All", ...unique];
   }, [researchers]);
 
-  const filtered =
-    filter === "All" ? researchers : researchers.filter((r) => r.role === filter);
+  const areaNames = useMemo(() => {
+    const unique = Array.from(new Set(researchers.map((r) => r.area_name).filter(Boolean)));
+    return ["All", ...unique];
+  }, [researchers]);
+
+  const filtered = useMemo(
+    () =>
+      researchers.filter(
+        (r) =>
+          (roleFilter === "All" || r.role === roleFilter) &&
+          (areaFilter === "All" || r.area_name === areaFilter)
+      ),
+    [researchers, roleFilter, areaFilter]
+  );
 
   if (error) {
     return (
@@ -45,20 +81,21 @@ export default function People() {
         <div className="max-w-6xl mx-auto px-6 md:px-8">
           <SectionHeader kicker="Directory" title="Researchers" />
 
-          <div className="flex flex-wrap gap-2 mb-8">
-            {roles.map((role) => (
-              <button
-                key={role}
-                onClick={() => setFilter(role)}
-                className={`text-[13.5px] font-semibold px-4 py-1.5 rounded-full border transition-colors ${
-                  filter === role
-                    ? "bg-navy text-white border-navy"
-                    : "text-gray-500 border-gray-300 hover:border-navy hover:text-navy"
-                }`}
-              >
-                {role}
-              </button>
-            ))}
+          <div className="flex flex-wrap gap-x-10 gap-y-5 mb-8">
+            <FilterGroup
+              label="Role"
+              options={roles}
+              value={roleFilter}
+              onChange={setRoleFilter}
+              activeClass="bg-navy text-white border-navy"
+            />
+            <FilterGroup
+              label="Research area"
+              options={areaNames}
+              value={areaFilter}
+              onChange={setAreaFilter}
+              activeClass="bg-amber text-navy-dark border-amber"
+            />
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -67,7 +104,7 @@ export default function People() {
             ))}
             {filtered.length === 0 && (
               <p className="text-gray-400 col-span-full text-center py-10">
-                No one in this category yet.
+                No one matches this filter yet.
               </p>
             )}
           </div>

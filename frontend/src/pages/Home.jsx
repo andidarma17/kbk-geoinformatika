@@ -101,9 +101,12 @@ export default function Home() {
           </div>
           <div className="grid md:grid-cols-2 gap-5">
             {areas.map((area) => (
-              <ResearchAreaCard key={area.id} area={area} />
+            <Link key={area.id} to={`/research/${area.slug}`}>
+            <ResearchAreaCard area={area} />
+            </Link>
             ))}
           </div>
+          
         </div>
       </section>
 

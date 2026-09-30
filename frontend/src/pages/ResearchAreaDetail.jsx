@@ -72,7 +72,7 @@ export default function ResearchAreaDetail() {
         </div>
       </section>
 
-      <section className="py-16">
+            <section className="py-16">
         <div className="max-w-6xl mx-auto px-6 md:px-8 grid md:grid-cols-3 gap-10">
           <div>
             <h2 className="text-sm font-semibold text-gray-500 uppercase mb-4">
@@ -81,8 +81,12 @@ export default function ResearchAreaDetail() {
             <ul className="space-y-3">
               {researchers.map((r) => (
                 <li key={r.id}>
-                  <div className="font-semibold text-[14.5px]">{r.name}</div>
-                  <div className="text-gray-500 text-[13px]">{r.role}</div>
+                  <Link to={`/people/${r.id}`} className="block group">
+                    <div className="font-semibold text-[14.5px] group-hover:text-navy group-hover:underline">
+                      {r.name}
+                    </div>
+                    <div className="text-gray-500 text-[13px]">{r.role}</div>
+                  </Link>
                 </li>
               ))}
               {researchers.length === 0 && <li className="text-gray-400 text-sm">None listed yet.</li>}
@@ -96,8 +100,12 @@ export default function ResearchAreaDetail() {
             <ul className="space-y-3">
               {projects.map((p) => (
                 <li key={p.id}>
-                  <div className="font-semibold text-[14.5px]">{p.title}</div>
-                  <div className="text-gray-500 text-[13px]">{p.year} &middot; {p.status}</div>
+                  <Link to={`/projects/${p.id}`} className="block group">
+                    <div className="font-semibold text-[14.5px] group-hover:text-navy group-hover:underline">
+                      {p.title}
+                    </div>
+                    <div className="text-gray-500 text-[13px]">{p.year} &middot; {p.status}</div>
+                  </Link>
                 </li>
               ))}
               {projects.length === 0 && <li className="text-gray-400 text-sm">None listed yet.</li>}
@@ -111,8 +119,12 @@ export default function ResearchAreaDetail() {
             <ul className="space-y-3">
               {publications.map((p) => (
                 <li key={p.id}>
-                  <div className="font-semibold text-[14.5px]">{p.title}</div>
-                  <div className="text-gray-500 text-[13px]">{p.venue} &middot; {p.year}</div>
+                  <Link to={`/publications/${p.id}`} className="block group">
+                    <div className="font-semibold text-[14.5px] group-hover:text-navy group-hover:underline">
+                      {p.title}
+                    </div>
+                    <div className="text-gray-500 text-[13px]">{p.venue} &middot; {p.year}</div>
+                  </Link>
                 </li>
               ))}
               {publications.length === 0 && <li className="text-gray-400 text-sm">None listed yet.</li>}
