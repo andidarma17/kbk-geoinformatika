@@ -1,3 +1,4 @@
+import OntologyDiagram from "../components/OntologyDiagram";
 import { useEffect, useState } from "react";
 import { api } from "../api";
 import { Link } from "react-router-dom";
@@ -75,7 +76,7 @@ export default function Home() {
             </p>
           </div>
           <div className="grid grid-cols-2 gap-px bg-gray-200 border border-gray-200 rounded-lg overflow-hidden h-fit">
-            <StatBlock value={stats?.areas ?? "–"} label="Research areas" />
+            <StatBlock value={stats?.areas ?? "–"} label="Field of Study (Ontology)" />
             <StatBlock value={stats?.researchers ?? "–"} label="Researchers & students" />
             <StatBlock value={stats?.projects ?? "–"} label="Active projects" />
             <StatBlock value={stats?.publications ?? "–"} label="Publications" />
@@ -83,22 +84,23 @@ export default function Home() {
         </div>
       </section>
 
-            {/* Research areas — short teaser, full detail lives on /research */}
+            {/* Field of Study (Ontology) — short teaser, full detail lives on /research */}
       <section id="research" className="py-16">
         <div className="max-w-6xl mx-auto px-6 md:px-8">
           <div className="flex flex-wrap items-end justify-between gap-4 mb-11">
             <SectionHeader
               kicker="Research"
-              title="Research areas"
-              description="Two core areas structure our work today."
+              title="Field of Study (Ontology)"
+              description="Explore our fields of study and their Epistemologies."
             />
             <Link
               to="/research"
               className="text-[14.5px] font-semibold text-navy hover:underline whitespace-nowrap mb-1"
             >
-              All Research →
+              All Fields of Study →
             </Link>
           </div>
+          <OntologyDiagram />
           <div className="grid md:grid-cols-2 gap-5">
             {areas.map((area) => (
             <Link key={area.id} to={`/research/${area.slug}`}>

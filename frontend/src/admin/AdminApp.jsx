@@ -108,6 +108,9 @@ function ChangePasswordForm() {
 export default function AdminApp() {
   const [session, setSession] = useState(undefined); // undefined = still checking
   const [tab, setTab] = useState("research-areas");
+  const [epistemologies, setEpistemologies] = useState([]);
+  const [lookupError, setLookupError] = useState("");
+  const [lookupVersion, setLookupVersion] = useState(0);
   const [areas, setAreas] = useState([]);
   const [researchers, setResearchers] = useState([]);   
 
@@ -118,10 +121,12 @@ export default function AdminApp() {
 
     useEffect(() => {
     if (session) {
-      api.getResearchAreas().then(setAreas).catch(() => {});
-      api.getResearchers().then(setResearchers).catch(() => {});
+      setLookupError("");
+      Promise.all([api.getResearchAreas(), api.getResearchers(), api.getEpistemologies()])
+        .then(([a, r, e]) => { setAreas(a); setResearchers(r); setEpistemologies(e); })
+        .catch((e) => setLookupError(e.message));
     }
-  }, [session, tab]);
+  }, [session, tab, lookupVersion]);
 
   useEffect(() => {
     const meta = document.createElement("meta");
@@ -164,10 +169,11 @@ export default function AdminApp() {
       </header>
 
       <main className="max-w-6xl mx-auto px-6 py-8">
+        {lookupError && <p role="alert" className="mb-4 text-red-600">Could not load form options: {lookupError}</p>}
         {tab === "settings" ? (
           <ChangePasswordForm />
         ) : (
-          <ResourceManager resource={tab} config={resourceConfigs[tab]} areas={areas} researchers={researchers} />
+          <ResourceManager key={tab} epistemologies={epistemologies} onSaved={() => setLookupVersion((v) => v + 1)} resource={tab} config={resourceConfigs[tab]} areas={areas} researchers={researchers} />
         )}
       </main>
     </div>

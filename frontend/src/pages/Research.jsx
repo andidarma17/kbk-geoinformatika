@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api";
 import SectionHeader from "../components/SectionHeader";
+import OntologyDiagram from "../components/OntologyDiagram";
 
-function AreaCard({ area }) {
+function AreaCard({ area, epistemologies }) {
   return (
     <Link
       to={`/research/${area.slug}`}
@@ -12,7 +13,7 @@ function AreaCard({ area }) {
       <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
         <h3 className="text-[20px] font-bold">{area.name}</h3>
         <div className="flex flex-wrap gap-2">
-          {area.tags.map((t) => (
+          {(area.tags || []).map((t) => (
             <span key={t} className="text-xs font-medium text-navy border border-navy/40 rounded-full px-2.5 py-0.5">
               {t}
             </span>
@@ -20,6 +21,12 @@ function AreaCard({ area }) {
         </div>
       </div>
       <p className="text-gray-500 text-[14.5px] mb-3">{area.description}</p>
+      <div className="mb-3">
+        <h4 className="text-xs font-semibold uppercase text-gray-500 mb-2">Epistemology</h4>
+        {epistemologies.length ? <ul className="flex flex-wrap gap-2">
+          {epistemologies.map((item) => <li key={item.id} className="text-xs bg-blue-50 text-navy rounded-full px-3 py-1">{item.name}</li>)}
+        </ul> : <p className="text-sm text-gray-400">No Epistemology listed yet.</p>}
+      </div>
       <span className="text-[13.5px] font-semibold text-navy">View researchers, projects & publications →</span>
     </Link>
   );
@@ -27,10 +34,13 @@ function AreaCard({ area }) {
 
 export default function Research() {
   const [areas, setAreas] = useState([]);
+  const [epistemologies, setEpistemologies] = useState([]);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    api.getResearchAreas().then(setAreas).catch((e) => setError(e.message));
+    Promise.all([api.getResearchAreas(), api.getEpistemologies()])
+      .then(([a, e]) => { setAreas(a); setEpistemologies(e); })
+      .catch((e) => setError(e.message));
   }, []);
 
   if (error) {
@@ -46,11 +56,10 @@ export default function Research() {
       <section className="bg-navy text-white py-20">
         <div className="max-w-6xl mx-auto px-6 md:px-8 max-w-[720px]">
           <h1 className="font-display font-bold text-[34px] md:text-[44px] leading-tight">
-            Research
+            Field of Study (Ontology)
           </h1>
           <p className="mt-5 text-[17px] text-blue-100/80">
-            Our work is organized into two research areas. Each links directly
-            to the researchers and projects working within it.
+            Explore our Ontologies and the Epistemologies within each field of study.
           </p>
         </div>
       </section>
@@ -59,12 +68,13 @@ export default function Research() {
         <div className="max-w-6xl mx-auto px-6 md:px-8">
           <SectionHeader
             kicker="Overview"
-            title="Research areas"
+            title="Field of Study (Ontology)"
             description="Select an area below to see the people and projects behind it."
           />
+          <OntologyDiagram />
           <div className="space-y-6">
   {areas.map((area) => (
-    <AreaCard key={area.id} area={area} />
+    <AreaCard key={area.id} area={area} epistemologies={epistemologies.filter((item) => item.research_area_id === area.id)} />
   ))}
 </div>
         </div>

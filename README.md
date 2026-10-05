@@ -49,11 +49,13 @@ kbk-geoinformatika/
 |-------|------|
 | `/` | Home |
 | `/about` | About the group |
-| `/research` | Research areas overview |
-| `/research/:slug` | One research area with its researchers, projects, publications |
-| `/projects` | Projects directory (filter by status and area) |
-| `/publications` | Publications directory (search, filter by area and year) |
-| `/people` | People directory (filter by role) |
+| `/research` | Field of Study (Ontology) overview and diagram |
+| `/research/:slug` | One Ontology, its Epistemologies and related outputs |
+| `/projects` | Projects directory (filter by status, Ontology and Epistemology) |
+| `/publications` | Publications directory (search, filter by Ontology, Epistemology and year) |
+| `/intellectual-property` | Intellectual Property/Patent directory and detail pages |
+| `/community-services` | Community Services directory and detail pages |
+| `/people` | People directory (filter by role, Ontology and Epistemology) |
 | `/people/:id` | Researcher profile: education, projects, publications |
 | `/facilities` | Facilities and resources |
 | `/news` | News and activities |
@@ -71,6 +73,9 @@ npm run dev
 ```
 
 The site runs on http://localhost:5173.
+
+Run `npm test` for the Ontology/Epistemology filtering and validation tests,
+and `npm run build` to check the production bundle.
 
 Create `frontend/.env` with your Supabase project details:
 
@@ -108,6 +113,12 @@ changing them.
 | `inquiries` | Contact form submissions (only the admin can read them) |
 | `project_researchers` | Links researchers to projects |
 | `publication_researchers` | Links researchers to publications |
+| `epistemologies` | Subcategories of an Ontology (`research_areas`) |
+| `intellectual_properties` | Intellectual property and patents |
+| `community_services` | Community service activities |
+| `intellectual_property_researchers`, `community_service_researchers` | Links people to those outputs |
+
+Before deploying this update, run [`supabase/migrations/20261005_ontology_epistemology_outputs.sql`](supabase/migrations/20261005_ontology_epistemology_outputs.sql) in the Supabase SQL Editor. The migration keeps existing `research_areas` records and IDs; the display name becomes Ontology. It adds Epistemology as an optional child classification to existing people, projects and publications. Existing records remain visible, and the new categories can be assigned in `/admin`. The migration expects the existing `public.is_admin()` function used by the site's current policies. Back up production data before applying it. Deploy the frontend after the SQL succeeds; deploying it first will make taxonomy queries fail.
 
 Security model (Row Level Security):
 
@@ -118,7 +129,8 @@ Security model (Row Level Security):
 ## Admin dashboard
 
 Open `/admin` and sign in with the admin email and password. Tabs:
-Research Areas, Researchers, Projects, Publications, News, Inquiries, and
+Field of Study (Ontology), Epistemology, Researchers, Projects, Publications,
+Intellectual Property/Patent, Community Services, News, Inquiries, and
 Settings (change password).
 
 Tips:
@@ -131,7 +143,9 @@ Tips:
   `PhD in Geodetic Engineering, UGM, 2022`.
 - **Linking people to work:** in the Projects and Publications forms,
   tick the researchers involved. Their profile pages then list that work.
-- **Tags** (research areas): comma separated.
+- **Tags** (Ontology): comma separated.
+- **Epistemology:** create it under an Ontology, then assign it to people and outputs. The form clears the Epistemology choice when you change its Ontology. Database constraints enforce the same parent-child relation.
+- The Field of Study diagram is stored at `frontend/public/Field of Study (Ontology).svg` and shown on the home and field-of-study pages.
 
 ## Deploying (Netlify)
 

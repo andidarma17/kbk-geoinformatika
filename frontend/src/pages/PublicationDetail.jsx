@@ -103,7 +103,7 @@ export default function PublicationDetail() {
                 )}
                 {pub.area_name && (
                   <div>
-                    <dt className="text-gray-400 text-[12.5px]">Research area</dt>
+                    <dt className="text-gray-400 text-[12.5px]">Ontology</dt>
                     <dd>
                       {pub.area_slug ? (
                         <Link to={`/research/${pub.area_slug}`} className="text-navy font-semibold">
@@ -115,6 +115,7 @@ export default function PublicationDetail() {
                     </dd>
                   </div>
                 )}
+                {pub.epistemology_name && <div><dt className="text-gray-400 text-[12.5px]">Epistemology</dt><dd>{pub.epistemology_name}</dd></div>}
               </dl>
             </div>
 

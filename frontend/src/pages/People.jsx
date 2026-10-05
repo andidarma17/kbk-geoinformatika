@@ -1,3 +1,5 @@
+import TaxonomyFilters from "../components/TaxonomyFilters";
+import { matchesTaxonomy } from "../taxonomy";
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../api";
 import SectionHeader from "../components/SectionHeader";
@@ -27,22 +29,22 @@ function FilterGroup({ label, options, value, onChange, activeClass }) {
 }
 
 export default function People() {
+  const [areas, setAreas] = useState([]);
   const [researchers, setResearchers] = useState([]);
   const [roleFilter, setRoleFilter] = useState("All");
-  const [areaFilter, setAreaFilter] = useState("All");
+  const [areaFilter, setAreaFilter] = useState("");
+  const [epistemologyFilter, setEpistemologyFilter] = useState("");
+  const [epistemologies, setEpistemologies] = useState([]);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    api.getResearchers().then(setResearchers).catch((e) => setError(e.message));
+    Promise.all([api.getResearchers(), api.getResearchAreas(), api.getEpistemologies()])
+      .then(([r, a, e]) => { setResearchers(r); setAreas(a); setEpistemologies(e); })
+      .catch((e) => setError(e.message));
   }, []);
 
   const roles = useMemo(() => {
     const unique = Array.from(new Set(researchers.map((r) => r.role).filter(Boolean)));
-    return ["All", ...unique];
-  }, [researchers]);
-
-  const areaNames = useMemo(() => {
-    const unique = Array.from(new Set(researchers.map((r) => r.area_name).filter(Boolean)));
     return ["All", ...unique];
   }, [researchers]);
 
@@ -51,9 +53,9 @@ export default function People() {
       researchers.filter(
         (r) =>
           (roleFilter === "All" || r.role === roleFilter) &&
-          (areaFilter === "All" || r.area_name === areaFilter)
+          matchesTaxonomy(r, areaFilter, epistemologyFilter)
       ),
-    [researchers, roleFilter, areaFilter]
+    [researchers, roleFilter, areaFilter, epistemologyFilter]
   );
 
   if (error) {
@@ -72,7 +74,7 @@ export default function People() {
             People
           </h1>
           <p className="mt-5 text-[17px] text-blue-100/80">
-            Lecturers, researchers, and students working across our research areas.
+            Lecturers, researchers, and students working across our Ontologies.
           </p>
         </div>
       </section>
@@ -89,13 +91,7 @@ export default function People() {
               onChange={setRoleFilter}
               activeClass="bg-navy text-white border-navy"
             />
-            <FilterGroup
-              label="Research area"
-              options={areaNames}
-              value={areaFilter}
-              onChange={setAreaFilter}
-              activeClass="bg-amber text-navy-dark border-amber"
-            />
+            <TaxonomyFilters areas={areas} epistemologies={epistemologies} ontology={areaFilter} epistemology={epistemologyFilter} onOntologyChange={setAreaFilter} onEpistemologyChange={setEpistemologyFilter} />
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">

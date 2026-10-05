@@ -5,7 +5,7 @@ const timeline = [
   { year: "[Year]", label: "Group established within Departemen Teknik Geodesi" },
   { year: "[Year]", label: "First cohort of graduate researchers joins the group" },
   { year: "[Year]", label: "Group expands into UAV-based remote sensing work" },
-  { year: "[Year]", label: "Ongoing — current research areas and active projects" }
+  { year: "[Year]", label: "Ongoing — current Ontologies and active projects" }
 ];
 
 export default function About() {

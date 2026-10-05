@@ -4,7 +4,7 @@
 
 export const resourceConfigs = {
   "research-areas": {
-    label: "Research Areas",
+    label: "Field of Study (Ontology)",
     columns: [
       { key: "name", label: "Name" },
       { key: "slug", label: "Slug" },
@@ -16,12 +16,22 @@ export const resourceConfigs = {
       { key: "tags", label: "Tags (comma separated)", type: "text" },
     ],
   },
+  epistemologies: {
+    label: "Epistemology",
+    columns: [{ key: "name", label: "Name" }, { key: "area_name", label: "Ontology" }],
+    fields: [
+      { key: "research_area_id", label: "Ontology", type: "area-select", required: true },
+      { key: "name", label: "Name", type: "text", required: true },
+      { key: "slug", label: "Slug", type: "text", required: true },
+      { key: "description", label: "Description", type: "textarea" },
+    ],
+  },
   researchers: {
     label: "Researchers",
     columns: [
       { key: "name", label: "Name" },
       { key: "role", label: "Role" },
-      { key: "area_name", label: "Area" },
+      { key: "area_name", label: "Ontology" },
     ],
     fields: [
       { key: "name", label: "Name", type: "text", required: true },
@@ -31,7 +41,8 @@ export const resourceConfigs = {
         label: "Education (one entry per line)",
         type: "textarea",
       },
-      { key: "research_area_id", label: "Research Area", type: "area-select" },
+      { key: "research_area_id", label: "Ontology", type: "area-select" },
+      { key: "epistemology_id", label: "Epistemology", type: "epistemology-select" },
       { key: "interests", label: "Interests", type: "textarea" },
       { key: "email", label: "Email", type: "text" },
       { key: "orcid", label: "ORCID", type: "text" },
@@ -55,7 +66,8 @@ export const resourceConfigs = {
         type: "select",
         options: ["Active", "Completed"],
       },
-      { key: "research_area_id", label: "Research Area", type: "area-select" },
+      { key: "research_area_id", label: "Ontology", type: "area-select" },
+      { key: "epistemology_id", label: "Epistemology", type: "epistemology-select" },
       { key: "summary", label: "Summary", type: "textarea" },
       {
         key: "description",
@@ -84,7 +96,8 @@ export const resourceConfigs = {
       { key: "year", label: "Year", type: "number" },
       { key: "venue", label: "Venue", type: "text" },
       { key: "abstract", label: "Abstract", type: "textarea" },
-      { key: "research_area_id", label: "Research Area", type: "area-select" },
+      { key: "research_area_id", label: "Ontology", type: "area-select" },
+      { key: "epistemology_id", label: "Epistemology", type: "epistemology-select" },
       { key: "doi_url", label: "DOI URL", type: "text" },
       { key: "pdf_url", label: "PDF URL", type: "text" },
       {
@@ -122,4 +135,37 @@ export const resourceConfigs = {
     ],
     fields: [], // read/delete only — inquiries come from the public form, not created here
   },
+};
+
+const classificationFields = [
+  { key: "research_area_id", label: "Ontology", type: "area-select" },
+  { key: "epistemology_id", label: "Epistemology", type: "epistemology-select" },
+];
+const workFields = [
+  { key: "title", label: "Title", type: "text", required: true },
+  { key: "year", label: "Year", type: "number" },
+  ...classificationFields,
+  { key: "summary", label: "Summary", type: "textarea" },
+  { key: "description", label: "Description", type: "textarea" },
+  { key: "external_url", label: "Reference URL (https://...)", type: "text" },
+  { key: "researcher_ids", label: "Researchers", type: "researcher-multiselect" },
+];
+resourceConfigs["intellectual-property"] = {
+  label: "Intellectual Property/Patent",
+  columns: [{ key: "title", label: "Title" }, { key: "registration_number", label: "Registration number" }, { key: "year", label: "Year" }],
+  fields: [...workFields,
+    { key: "ip_type", label: "Type", type: "select", options: ["Patent", "Copyright", "Trademark", "Industrial Design", "Other"] },
+    { key: "registration_number", label: "Registration number", type: "text" },
+    { key: "holders", label: "Inventors / rights holders", type: "textarea" },
+    { key: "status", label: "Status", type: "select", options: ["Filed", "Pending", "Granted", "Registered", "Expired"] },
+  ],
+};
+resourceConfigs["community-services"] = {
+  label: "Community Services",
+  columns: [{ key: "title", label: "Title" }, { key: "location", label: "Location" }, { key: "year", label: "Year" }],
+  fields: [...workFields,
+    { key: "partners", label: "Partners / beneficiaries", type: "textarea" },
+    { key: "location", label: "Location", type: "text" },
+    { key: "status", label: "Status", type: "select", options: ["Planned", "Active", "Completed"] },
+  ],
 };

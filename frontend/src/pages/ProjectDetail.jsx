@@ -109,7 +109,7 @@ export default function ProjectDetail() {
                 )}
                 {project.area_name && (
                   <div>
-                    <dt className="text-gray-400 text-[12.5px]">Research area</dt>
+                    <dt className="text-gray-400 text-[12.5px]">Ontology</dt>
                     <dd>
                       {project.area_slug ? (
                         <Link to={`/research/${project.area_slug}`} className="text-navy font-semibold">
@@ -121,6 +121,7 @@ export default function ProjectDetail() {
                     </dd>
                   </div>
                 )}
+                {project.epistemology_name && <div><dt className="text-gray-400 text-[12.5px]">Epistemology</dt><dd>{project.epistemology_name}</dd></div>}
               </dl>
             </div>
 

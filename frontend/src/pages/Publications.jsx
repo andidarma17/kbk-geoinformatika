@@ -1,3 +1,5 @@
+import TaxonomyFilters from "../components/TaxonomyFilters";
+import { matchesTaxonomy } from "../taxonomy";
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../api";
 import SectionHeader from "../components/SectionHeader";
@@ -6,14 +8,17 @@ import PublicationRow from "../components/PublicationRow";
 export default function Publications() {
   const [publications, setPublications] = useState([]);
   const [areas, setAreas] = useState([]);
-  const [areaFilter, setAreaFilter] = useState("All");
+  const [areaFilter, setAreaFilter] = useState("");
+  const [epistemologyFilter, setEpistemologyFilter] = useState("");
+  const [epistemologies, setEpistemologies] = useState([]);
   const [yearFilter, setYearFilter] = useState("All");
   const [search, setSearch] = useState("");
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    Promise.all([api.getPublications(), api.getResearchAreas()])
-      .then(([p, a]) => {
+    Promise.all([api.getPublications(), api.getResearchAreas(), api.getEpistemologies()])
+      .then(([p, a, e]) => {
+        setEpistemologies(e);
         setPublications(p);
         setAreas(a);
       })
@@ -28,13 +33,13 @@ export default function Publications() {
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return publications.filter((p) => {
-      const areaOk = areaFilter === "All" || p.area_name === areaFilter;
+      const areaOk = matchesTaxonomy(p, areaFilter, epistemologyFilter);
       const yearOk = yearFilter === "All" || String(p.year) === String(yearFilter);
       const searchOk =
         !q || p.title.toLowerCase().includes(q) || (p.authors || "").toLowerCase().includes(q);
       return areaOk && yearOk && searchOk;
     });
-  }, [publications, areaFilter, yearFilter, search]);
+  }, [publications, areaFilter, epistemologyFilter, yearFilter, search]);
 
   if (error) {
     return (
@@ -52,7 +57,7 @@ export default function Publications() {
             Publications
           </h1>
           <p className="mt-5 text-[17px] text-blue-100/80">
-            Research outputs from the group, searchable by title, author, research area, and year.
+            Research outputs from the group, searchable by title, author, Ontology, and year.
           </p>
         </div>
       </section>
@@ -72,21 +77,7 @@ export default function Publications() {
           </div>
 
           <div className="flex flex-wrap gap-6 mb-8">
-            <div className="flex flex-wrap gap-2">
-              {["All", ...areas.map((a) => a.name)].map((a) => (
-                <button
-                  key={a}
-                  onClick={() => setAreaFilter(a)}
-                  className={`text-[13.5px] font-semibold px-4 py-1.5 rounded-full border transition-colors ${
-                    areaFilter === a
-                      ? "bg-navy text-white border-navy"
-                      : "text-gray-500 border-gray-300 hover:border-navy hover:text-navy"
-                  }`}
-                >
-                  {a}
-                </button>
-              ))}
-            </div>
+            <TaxonomyFilters areas={areas} epistemologies={epistemologies} ontology={areaFilter} epistemology={epistemologyFilter} onOntologyChange={setAreaFilter} onEpistemologyChange={setEpistemologyFilter} />
             <div className="flex flex-wrap gap-2">
               {years.map((y) => (
                 <button

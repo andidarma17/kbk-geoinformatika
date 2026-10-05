@@ -19,10 +19,12 @@ export default function Footer() {
           </div>
           <div>
             <h4 className="text-[13px] text-gray-500 font-semibold mb-3.5">Explore</h4>
-            <a href="/research" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">Research</a>
+            <a href="/research" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">Field of Study (Ontology)</a>
             <a href="/people" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">People</a>
             <a href="/projects" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">Projects</a>
             <a href="/publications" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">Publications</a>
+            <a href="/intellectual-property" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">Intellectual Property/Patent</a>
+            <a href="/community-services" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">Community Services</a>
           </div>
           <div>
             <h4 className="text-[13px] text-gray-500 font-semibold mb-3.5">Group</h4>
@@ -32,7 +34,7 @@ export default function Footer() {
           </div>
           <div>
             <h4 className="text-[13px] text-gray-500 font-semibold mb-3.5">Contact</h4>
-            <p className="text-sm text-gray-500 mb-2.5">geoinformatika@geodesi.ugm.ac.id</p>
+            <p className="text-sm text-gray-500 mb-2.5 break-all">geoinformatika@geodesi.ugm.ac.id</p>
             <p className="text-sm text-gray-500 mb-2.5">[Placeholder phone / address]</p>
           </div>
         </div>

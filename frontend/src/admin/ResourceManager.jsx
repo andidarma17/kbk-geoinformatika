@@ -1,7 +1,8 @@
+import { epistemologiesFor, validateClassification } from "../taxonomy";
 import { useEffect, useState } from "react";
 import { adminApi } from "./AdminApi";
 
-export default function ResourceManager({ resource, config, areas, researchers }) {
+export default function ResourceManager({ resource, config, areas, researchers, epistemologies, onSaved }) {
   const readOnly = config.fields.length === 0;
   const [items, setItems] = useState([]);
   const [editing, setEditing] = useState(null); // null = not editing, {} = new, object = editing
@@ -35,20 +36,26 @@ export default function ResourceManager({ resource, config, areas, researchers }
   
 
   const handleChange = (key, value) => {
-    setForm((f) => ({ ...f, [key]: value }));
+    setForm((f) => ({ ...f, [key]: value, ...(key === "research_area_id" ? { epistemology_id: "" } : {}) }));
   };
 
   const handleSave = async () => {
     setLoading(true);
     setError("");
     try {
+      for (const field of config.fields) {
+        if (field.required && !String(form[field.key] ?? "").trim()) throw new Error(`${field.label} is required.`);
+      }
+      validateClassification(form, epistemologies);
+      const payload = Object.fromEntries(config.fields.map((field) => [field.key, form[field.key] ?? (field.type === "researcher-multiselect" ? [] : "")]));
       if (editing?.id) {
-        await adminApi.update(resource, editing.id, form);
+        await adminApi.update(resource, editing.id, payload);
       } else {
-        await adminApi.create(resource, form);
+        await adminApi.create(resource, payload);
       }
       cancel();
       load();
+      onSaved?.();
     } catch (e) {
       setError(e.message);
     } finally {
@@ -61,6 +68,7 @@ export default function ResourceManager({ resource, config, areas, researchers }
     try {
       await adminApi.remove(resource, id);
       load();
+      onSaved?.();
     } catch (e) {
       setError(e.message);
     }
@@ -102,14 +110,14 @@ export default function ResourceManager({ resource, config, areas, researchers }
                 </label>
 
                 {field.type === "textarea" ? (
-                  <textarea
+                  <textarea aria-label={field.label}
                     className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
                     rows={3}
                     value={form[field.key] || ""}
                     onChange={(e) => handleChange(field.key, e.target.value)}
                   />
                 ) : field.type === "select" ? (
-                  <select
+                  <select aria-label={field.label}
                     className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
                     value={form[field.key] || ""}
                     onChange={(e) => handleChange(field.key, e.target.value)}
@@ -121,8 +129,16 @@ export default function ResourceManager({ resource, config, areas, researchers }
                       </option>
                     ))}
                   </select>
+                ) : field.type === "epistemology-select" ? (
+                  <select aria-label={field.label}
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm disabled:bg-gray-100"
+                    value={form[field.key] || ""} disabled={!form.research_area_id}
+                    onChange={(e) => handleChange(field.key, e.target.value)}>
+                    <option value="">{form.research_area_id ? "--" : "Select an Ontology first"}</option>
+                    {epistemologiesFor(epistemologies, form.research_area_id).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+                  </select>
                 ) : field.type === "area-select" ? (
-                  <select
+                  <select aria-label={field.label}
                     className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
                     value={form[field.key] || ""}
                     onChange={(e) => handleChange(field.key, Number(e.target.value) || "")}
@@ -163,7 +179,7 @@ export default function ResourceManager({ resource, config, areas, researchers }
                     )}
                   </div>
                 ) : (
-                  <input
+                  <input aria-label={field.label}
                     type={field.type === "number" ? "number" : "text"}
                     className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
                     value={form[field.key] || ""}
@@ -192,7 +208,7 @@ export default function ResourceManager({ resource, config, areas, researchers }
         </div>
       )}
 
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+      <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-left text-xs text-gray-500 uppercase">
             <tr>

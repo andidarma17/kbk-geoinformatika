@@ -63,6 +63,7 @@ export default function PersonDetail() {
               </>
             )}
           </p>
+          {person.epistemology_name && <p className="mt-2 text-blue-100/80">Epistemology: {person.epistemology_name}</p>}
         </div>
       </section>
 
@@ -96,6 +97,15 @@ export default function PersonDetail() {
           </aside>
 
           <div className="space-y-10">
+            {[["Intellectual Property/Patent", person.intellectual_properties, "intellectual-property"], ["Community Services", person.community_services, "community-services"]].map(([label, items, path]) =>
+              <div key={path}>
+                <h2 className="text-sm font-semibold text-gray-500 uppercase mb-3">{label} ({items.length})</h2>
+                <ul className="space-y-3">{items.map((item) => <li key={item.id}>
+                  <Link className="text-navy font-semibold hover:underline" to={`/${path}/${item.id}`}>{item.title}</Link>
+                  {item.year && <span className="text-gray-500 text-sm"> · {item.year}</span>}
+                </li>)}
+                {!items.length && <li className="text-gray-400 text-sm">None listed yet.</li>}</ul>
+              </div>)}
             
 
             <div>

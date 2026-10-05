@@ -8,9 +8,11 @@ const navStructure = [
     type: "dropdown",
     label: "Research",
     items: [
-      { to: "/research", label: "Research Areas" },
+      { to: "/research", label: "Field of Study (Ontology)" },
       { to: "/projects", label: "Projects" },
-      { to: "/publications", label: "Publications" }
+      { to: "/publications", label: "Publications" },
+      { to: "/intellectual-property", label: "Intellectual Property/Patent" },
+      { to: "/community-services", label: "Community Services" }
     ]
   },
   {
@@ -56,7 +58,7 @@ function Dropdown({ item, openMenu, setOpenMenu }) {
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-md shadow-sm py-1.5 min-w-[180px] z-50">
+        <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-md shadow-sm py-1.5 min-w-[250px] z-50">
           {item.items.map((sub) => (
             <Link
               key={sub.to}

@@ -1,21 +1,24 @@
 import { supabase } from "../supabaseClient";
 
 // Admin tabs use hyphenated names ("research-areas"); tables use underscores.
-const toTable = (resource) => resource.replaceAll("-", "_");
+const toTable = (resource) => resource === "intellectual-property" ? "intellectual_properties" : resource.replaceAll("-", "_");
 
 // Tables whose rows can be linked to researchers, and their junction tables.
 const LINKS = {
+  intellectual_properties: { junction: "intellectual_property_researchers", fk: "intellectual_property_id" },
+  community_services: { junction: "community_service_researchers", fk: "community_service_id" },
   projects: { junction: "project_researchers", fk: "project_id" },
   publications: { junction: "publication_researchers", fk: "publication_id" },
 };
-const WITH_AREA = new Set(["researchers", "projects", "publications"]);
+const WITH_AREA = new Set(["researchers", "projects", "publications", "intellectual_properties", "community_services", "epistemologies"]);
 
 function selectFor(table) {
   if (!WITH_AREA.has(table)) return "*";
+  if (table === "epistemologies") return "*, research_areas(name)";
   const link = LINKS[table];
   return link
-    ? `*, research_areas(name), ${link.junction}(researcher_id)`
-    : "*, research_areas(name)";
+    ? `*, research_areas(name), epistemologies(name), ${link.junction}(researcher_id)`
+    : "*, research_areas(name), epistemologies(name)";
 }
 
 // Turns embedded rows into the flat fields the admin forms use.
@@ -27,6 +30,10 @@ function flatten(table, rows) {
       out.area_name = out.research_areas?.name ?? null;
       delete out.research_areas;
     }
+    if ("epistemologies" in out) {
+      out.epistemology_name = out.epistemologies?.name ?? null;
+      delete out.epistemologies;
+    }
     if (link && link.junction in out) {
       out.researcher_ids = out[link.junction].map((j) => j.researcher_id);
       delete out[link.junction];
@@ -37,7 +44,7 @@ function flatten(table, rows) {
 
 // Strips display-only fields and normalizes form values for the database.
 function clean(data) {
-  const { id, area_name, research_areas, created_at, researcher_ids, ...rest } =
+  const { id, area_name, research_areas, epistemology_name, epistemologies, created_at, researcher_ids, ...rest } =
     data;
   if (typeof rest.tags === "string") {
     rest.tags = rest.tags
@@ -45,7 +52,7 @@ function clean(data) {
       .map((t) => t.trim())
       .filter(Boolean);
   }
-  for (const key of ["year", "research_area_id"]) {
+  for (const key of ["year", "research_area_id", "epistemology_id"]) {
     if (key in rest) {
       rest[key] =
         rest[key] === "" || rest[key] == null ? null : Number(rest[key]);

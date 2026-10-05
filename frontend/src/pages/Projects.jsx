@@ -1,3 +1,5 @@
+import TaxonomyFilters from "../components/TaxonomyFilters";
+import { matchesTaxonomy } from "../taxonomy";
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../api";
 import { Link } from "react-router-dom";
@@ -35,12 +37,15 @@ export default function Projects() {
   const [projects, setProjects] = useState([]);
   const [areas, setAreas] = useState([]);
   const [statusFilter, setStatusFilter] = useState("All");
-  const [areaFilter, setAreaFilter] = useState("All");
+  const [areaFilter, setAreaFilter] = useState("");
+  const [epistemologyFilter, setEpistemologyFilter] = useState("");
+  const [epistemologies, setEpistemologies] = useState([]);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    Promise.all([api.getProjects(), api.getResearchAreas()])
-      .then(([p, a]) => {
+    Promise.all([api.getProjects(), api.getResearchAreas(), api.getEpistemologies()])
+      .then(([p, a, e]) => {
+        setEpistemologies(e);
         setProjects(p);
         setAreas(a);
       })
@@ -50,10 +55,10 @@ export default function Projects() {
   const filtered = useMemo(() => {
     return projects.filter((p) => {
       const statusOk = statusFilter === "All" || p.status === statusFilter;
-      const areaOk = areaFilter === "All" || p.area_name === areaFilter;
+      const areaOk = matchesTaxonomy(p, areaFilter, epistemologyFilter);
       return statusOk && areaOk;
     });
-  }, [projects, statusFilter, areaFilter]);
+  }, [projects, statusFilter, areaFilter, epistemologyFilter]);
 
   if (error) {
     return (
@@ -71,7 +76,7 @@ export default function Projects() {
             Projects
           </h1>
           <p className="mt-5 text-[17px] text-blue-100/80">
-            Current and completed research projects across our research areas.
+            Current and completed research projects across our Ontologies.
           </p>
         </div>
       </section>
@@ -96,21 +101,7 @@ export default function Projects() {
                 </button>
               ))}
             </div>
-            <div className="flex flex-wrap gap-2">
-              {["All", ...areas.map((a) => a.name)].map((a) => (
-                <button
-                  key={a}
-                  onClick={() => setAreaFilter(a)}
-                  className={`text-[13.5px] font-semibold px-4 py-1.5 rounded-full border transition-colors ${
-                    areaFilter === a
-                      ? "bg-amber text-navy-dark border-amber"
-                      : "text-gray-500 border-gray-300 hover:border-navy hover:text-navy"
-                  }`}
-                >
-                  {a}
-                </button>
-              ))}
-            </div>
+            <TaxonomyFilters areas={areas} epistemologies={epistemologies} ontology={areaFilter} epistemology={epistemologyFilter} onOntologyChange={setAreaFilter} onEpistemologyChange={setEpistemologyFilter} />
           </div>
 
           <div className="grid md:grid-cols-2 gap-5">
