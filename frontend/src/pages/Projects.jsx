@@ -1,9 +1,13 @@
+import ErrorNotice from "../components/ErrorNotice";
 import TaxonomyFilters from "../components/TaxonomyFilters";
 import { matchesTaxonomy } from "../taxonomy";
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../api";
 import { Link } from "react-router-dom";
 import SectionHeader from "../components/SectionHeader";
+import { joinMeta } from "../utils/joinMeta";
+import LoadingSkeleton from "../components/LoadingSkeleton";
+import { usePageMeta } from "../utils/usePageMeta";
 
 function ProjectDetailCard({ project }) {
   return (
@@ -17,15 +21,14 @@ function ProjectDetailCard({ project }) {
         </h3>
         <span
           className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full whitespace-nowrap ${
-            project.status === "Active" ? "bg-amber/20 text-amber-dark" : "bg-gray-100 text-gray-500"
+            project.status === "Active" ? "bg-amber/30 text-navy-dark" : "bg-gray-100 text-gray-500"
           }`}
         >
           {project.status}
         </span>
       </div>
       <div className="text-[13px] text-gray-500 mb-3">
-        {project.area_name} &middot; {project.year}
-        {project.study_area && <> &middot; {project.study_area}</>}
+        {joinMeta(project.area_name, project.year, project.study_area)}
       </div>
       <p className="text-[14.5px] text-gray-600 mb-3 line-clamp-3">{project.summary}</p>
       <span className="text-[13px] font-semibold text-navy">View details →</span>
@@ -34,6 +37,7 @@ function ProjectDetailCard({ project }) {
 }
 
 export default function Projects() {
+  usePageMeta({ title: "Projects", description: "Browse current and completed geoinformatics research projects from KBK Geoinformatika." });
   const [projects, setProjects] = useState([]);
   const [areas, setAreas] = useState([]);
   const [statusFilter, setStatusFilter] = useState("All");
@@ -41,15 +45,20 @@ export default function Projects() {
   const [epistemologyFilter, setEpistemologyFilter] = useState("");
   const [epistemologies, setEpistemologies] = useState([]);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let active = true;
     Promise.all([api.getProjects(), api.getResearchAreas(), api.getEpistemologies()])
       .then(([p, a, e]) => {
+        if (!active) return;
         setEpistemologies(e);
         setProjects(p);
         setAreas(a);
       })
-      .catch((e) => setError(e.message));
+      .catch((e) => { if (active) { console.error("Failed to load content:", e); setError(true); } })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, []);
 
   const filtered = useMemo(() => {
@@ -60,24 +69,20 @@ export default function Projects() {
     });
   }, [projects, statusFilter, areaFilter, epistemologyFilter]);
 
-  if (error) {
-    return (
-      <div className="max-w-6xl mx-auto px-6 md:px-8 py-16 text-center text-gray-500">
-        Couldn't load projects from the API. {error}
-      </div>
-    );
-  }
+  if (error) return <ErrorNotice />;
 
   return (
     <>
       <section className="bg-navy text-white py-20">
-        <div className="max-w-6xl mx-auto px-6 md:px-8 max-w-[720px]">
-          <h1 className="font-display font-bold text-[34px] md:text-[44px] leading-tight">
-            Projects
-          </h1>
-          <p className="mt-5 text-[17px] text-blue-100/80">
-            Current and completed research projects across our Ontologies.
-          </p>
+        <div className="max-w-6xl mx-auto px-6 md:px-8">
+          <div className="max-w-[720px]">
+            <h1 className="font-display font-bold text-[34px] md:text-[44px] leading-tight">
+              Projects
+            </h1>
+            <p className="mt-5 text-[17px] text-blue-100/80">
+              Current and completed research projects across our Ontologies.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -105,11 +110,12 @@ export default function Projects() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-5">
+            {loading && <LoadingSkeleton count={4} />}
             {filtered.map((project) => (
               <ProjectDetailCard key={project.id} project={project} />
             ))}
-            {filtered.length === 0 && (
-              <p className="text-gray-400 col-span-full text-center py-10">
+            {!loading && filtered.length === 0 && (
+              <p className="text-gray-500 col-span-full text-center py-10">
                 No projects match this filter yet.
               </p>
             )}

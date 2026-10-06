@@ -1,6 +1,9 @@
+import ErrorNotice from "../components/ErrorNotice";
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { api } from "../api";
+import { joinMeta } from "../utils/joinMeta";
+import { usePageMeta } from "../utils/usePageMeta";
 
 export default function ResearchAreaDetail() {
   const { slug } = useParams();
@@ -13,47 +16,46 @@ export default function ResearchAreaDetail() {
   const [communityServices, setCommunityServices] = useState([]);
   const [error, setError] = useState(null);
   const [notFound, setNotFound] = useState(false);
+  usePageMeta({ title: area?.name ?? "Field of Study (Ontology)", description: area?.description || "Explore a KBK Geoinformatika Ontology, its Epistemologies, researchers, and outputs." });
 
   useEffect(() => {
     let active = true;
     setArea(null);
     setError(null);
     setNotFound(false);
-    Promise.all([
-      api.getResearchAreas(),
-      api.getResearchers(),
-      api.getProjects(),
-      api.getPublications(),
-      api.getEpistemologies(),
-      api.getWorks("intellectual-property"),
-      api.getWorks("community-services")
-    ])
-      .then(([areas, r, p, pub, e, ip, community]) => {
+    (async () => {
+      try {
+        const match = await api.getResearchAreaBySlug(slug);
         if (!active) return;
-        const match = areas.find((a) => a.slug === slug);
         if (!match) {
           setNotFound(true);
           return;
         }
+        const researchAreaId = match.id;
+        const [r, p, pub, e, ip, community] = await Promise.all([
+          api.getResearchers({ researchAreaId }),
+          api.getProjects({ researchAreaId }),
+          api.getPublications({ researchAreaId }),
+          api.getEpistemologies({ researchAreaId }),
+          api.getWorks("intellectual-property", { researchAreaId }),
+          api.getWorks("community-services", { researchAreaId }),
+        ]);
+        if (!active) return;
         setArea(match);
-        setResearchers(r.filter((x) => x.research_area_id === match.id));
-        setProjects(p.filter((x) => x.research_area_id === match.id));
-        setPublications(pub.filter((x) => x.research_area_id === match.id));
-        setEpistemologies(e.filter((x) => x.research_area_id === match.id));
-        setIntellectualProperty(ip.filter((x) => x.research_area_id === match.id));
-        setCommunityServices(community.filter((x) => x.research_area_id === match.id));
-      })
-      .catch((e) => { if (active) setError(e.message); });
+        setResearchers(r);
+        setProjects(p);
+        setPublications(pub);
+        setEpistemologies(e);
+        setIntellectualProperty(ip);
+        setCommunityServices(community);
+      } catch (e) {
+        if (active) { console.error("Failed to load content:", e); setError(true); }
+      }
+    })();
     return () => { active = false; };
   }, [slug]);
 
-  if (error) {
-    return (
-      <div className="max-w-6xl mx-auto px-6 md:px-8 py-16 text-center text-gray-500">
-        Couldn't load this Ontology. {error}
-      </div>
-    );
-  }
+  if (error) return <ErrorNotice />;
 
   if (notFound) {
     return (
@@ -69,20 +71,22 @@ export default function ResearchAreaDetail() {
   return (
     <>
       <section className="bg-navy text-white py-16">
-        <div className="max-w-6xl mx-auto px-6 md:px-8 max-w-[720px]">
-          <Link to="/research" className="text-blue-100/70 text-sm font-semibold hover:text-white">
-            ← All Fields of Study
-          </Link>
-          <h1 className="font-display font-bold text-[32px] md:text-[42px] leading-tight mt-3">
-            {area.name}
-          </h1>
-          <p className="mt-4 text-[16px] text-blue-100/80">{area.description}</p>
-          <div className="flex flex-wrap gap-2 mt-5">
-            {(area.tags || []).map((t) => (
-              <span key={t} className="text-xs font-medium text-white border border-white/40 rounded-full px-2.5 py-0.5">
-                {t}
-              </span>
-            ))}
+        <div className="max-w-6xl mx-auto px-6 md:px-8">
+          <div className="max-w-[720px]">
+            <Link to="/research" className="text-blue-100/70 text-sm font-semibold hover:text-white">
+              ← All Fields of Study
+            </Link>
+            <h1 className="font-display font-bold text-[32px] md:text-[42px] leading-tight mt-3">
+              {area.name}
+            </h1>
+            <p className="mt-4 text-[16px] text-blue-100/80">{area.description}</p>
+            <div className="flex flex-wrap gap-2 mt-5">
+              {(area.tags || []).map((t) => (
+                <span key={t} className="text-xs font-medium text-white border border-white/40 rounded-full px-2.5 py-0.5">
+                  {t}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -114,7 +118,7 @@ export default function ResearchAreaDetail() {
                   </Link>
                 </li>
               ))}
-              {researchers.length === 0 && <li className="text-gray-400 text-sm">None listed yet.</li>}
+              {researchers.length === 0 && <li className="text-gray-500 text-sm">None listed yet.</li>}
             </ul>
           </div>
 
@@ -129,11 +133,11 @@ export default function ResearchAreaDetail() {
                     <div className="font-semibold text-[14.5px] group-hover:text-navy group-hover:underline">
                       {p.title}
                     </div>
-                    <div className="text-gray-500 text-[13px]">{p.year} &middot; {p.status}</div>
+                    <div className="text-gray-500 text-[13px]">{joinMeta(p.year, p.status)}</div>
                   </Link>
                 </li>
               ))}
-              {projects.length === 0 && <li className="text-gray-400 text-sm">None listed yet.</li>}
+              {projects.length === 0 && <li className="text-gray-500 text-sm">None listed yet.</li>}
             </ul>
           </div>
 
@@ -148,11 +152,11 @@ export default function ResearchAreaDetail() {
                     <div className="font-semibold text-[14.5px] group-hover:text-navy group-hover:underline">
                       {p.title}
                     </div>
-                    <div className="text-gray-500 text-[13px]">{p.venue} &middot; {p.year}</div>
+                    <div className="text-gray-500 text-[13px]">{joinMeta(p.venue, p.year)}</div>
                   </Link>
                 </li>
               ))}
-              {publications.length === 0 && <li className="text-gray-400 text-sm">None listed yet.</li>}
+              {publications.length === 0 && <li className="text-gray-500 text-sm">None listed yet.</li>}
             </ul>
           </div>
         </div>
@@ -165,7 +169,7 @@ export default function ResearchAreaDetail() {
               <Link className="font-semibold text-navy hover:underline" to={`/${path}/${item.id}`}>{item.title}</Link>
               {item.year && <span className="text-gray-500 text-sm"> · {item.year}</span>}
             </li>)}
-            {!items.length && <li className="text-gray-400 text-sm">None listed yet.</li>}</ul>
+            {!items.length && <li className="text-gray-500 text-sm">None listed yet.</li>}</ul>
           </div>) }
       </section>
     </>

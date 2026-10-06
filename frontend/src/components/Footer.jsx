@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function Footer() {
   return (
     <footer className="bg-white border-t border-gray-200 pt-14 pb-8">
@@ -19,18 +21,18 @@ export default function Footer() {
           </div>
           <div>
             <h4 className="text-[13px] text-gray-500 font-semibold mb-3.5">Explore</h4>
-            <a href="/research" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">Field of Study (Ontology)</a>
-            <a href="/people" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">People</a>
-            <a href="/projects" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">Projects</a>
-            <a href="/publications" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">Publications</a>
-            <a href="/intellectual-property" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">Intellectual Property/Patent</a>
-            <a href="/community-services" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">Community Services</a>
+            <Link to="/research" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">Field of Study (Ontology)</Link>
+            <Link to="/people" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">People</Link>
+            <Link to="/projects" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">Projects</Link>
+            <Link to="/publications" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">Publications</Link>
+            <Link to="/intellectual-property" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">Intellectual Property/Patent</Link>
+            <Link to="/community-services" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">Community Services</Link>
           </div>
           <div>
             <h4 className="text-[13px] text-gray-500 font-semibold mb-3.5">Group</h4>
-            <a href="/about" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">About</a>
-            <a href="/news" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">News</a>
-            <a href="/contact" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">Contact</a>
+            <Link to="/about" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">About</Link>
+            <Link to="/news" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">News</Link>
+            <Link to="/contact" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">Contact</Link>
           </div>
           <div>
             <h4 className="text-[13px] text-gray-500 font-semibold mb-3.5">Contact</h4>

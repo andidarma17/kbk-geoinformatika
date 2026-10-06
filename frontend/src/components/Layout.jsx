@@ -1,27 +1,38 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 
 export default function Layout() {
   const location = useLocation();
+  const mainRef = useRef(null);
 
   useEffect(() => {
-    if (location.hash) {
-      // Give the new page a tick to render before looking for the target.
-      const el = document.querySelector(location.hash);
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth" });
-        return;
-      }
+    mainRef.current?.focus({ preventScroll: true });
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!location.hash) {
+      window.scrollTo(0, 0);
+      return;
     }
-    window.scrollTo(0, 0);
+    let id = location.hash.slice(1);
+    try { id = decodeURIComponent(id); } catch { /* Keep the raw hash. */ }
+    const raf = requestAnimationFrame(() => {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+      else window.scrollTo(0, 0);
+    });
+    return () => cancelAnimationFrame(raf);
   }, [location.pathname, location.hash]);
 
   return (
     <div className="min-h-screen flex flex-col">
+      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[60] focus:bg-white focus:text-navy focus:px-4 focus:py-2 focus:rounded-md">
+        Skip to content
+      </a>
       <Navbar />
-      <main className="flex-1">
+      <main id="main" ref={mainRef} tabIndex={-1} className="flex-1">
         <Outlet />
       </main>
       <Footer />

@@ -4,9 +4,14 @@ import { api } from "../api";
 import TaxonomyFilters from "../components/TaxonomyFilters";
 import { matchesTaxonomy } from "../taxonomy";
 import { workTypes } from "../workTypes";
+import ErrorNotice from "../components/ErrorNotice";
+import { joinMeta } from "../utils/joinMeta";
+import LoadingSkeleton from "../components/LoadingSkeleton";
+import { usePageMeta } from "../utils/usePageMeta";
 
 export default function WorkDirectory({ kind }) {
   const config = workTypes[kind];
+  usePageMeta({ title: config.title, description: config.description });
   const [items, setItems] = useState([]);
   const [areas, setAreas] = useState([]);
   const [epistemologies, setEpistemologies] = useState([]);
@@ -14,11 +19,18 @@ export default function WorkDirectory({ kind }) {
   const [epistemology, setEpistemology] = useState("");
   const [search, setSearch] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setError("");
+    setItems([]);
     Promise.all([api.getWorks(kind), api.getResearchAreas(), api.getEpistemologies()])
-      .then(([work, parent, children]) => { setItems(work); setAreas(parent); setEpistemologies(children); })
-      .catch((e) => setError(e.message));
+      .then(([work, parent, children]) => { if (active) { setItems(work); setAreas(parent); setEpistemologies(children); } })
+      .catch((e) => { if (active) { console.error("Failed to load content:", e); setError(true); } })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, [kind]);
 
   const filtered = useMemo(() => items.filter((item) =>
@@ -35,7 +47,7 @@ export default function WorkDirectory({ kind }) {
       </div>
     </section>
     <section className="max-w-6xl mx-auto px-6 md:px-8 py-14">
-      {error ? <p role="alert" className="text-red-600">Couldn't load {config.title}: {error}</p> : <>
+      {error ? <ErrorNotice /> : <>
         <div className="flex flex-wrap gap-5 items-end mb-8">
           <label className="text-sm font-semibold text-gray-600">Search
             <input aria-label={`Search ${config.title}`} type="search" value={search} onChange={(event) => setSearch(event.target.value)}
@@ -45,14 +57,15 @@ export default function WorkDirectory({ kind }) {
             onOntologyChange={setOntology} onEpistemologyChange={setEpistemology} />
         </div>
         <div className="grid md:grid-cols-2 gap-5">
+          {loading && <LoadingSkeleton count={4} />}
           {filtered.map((item) => <Link key={item.id} to={`/${kind}/${item.id}`}
             className="block bg-white border border-gray-200 hover:border-navy rounded-lg p-6">
             <h2 className="font-bold text-lg text-navy">{item.title}</h2>
-            <p className="mt-1 text-sm text-gray-500">{[item.year, item.area_name, item.epistemology_name].filter(Boolean).join(" · ")}</p>
+            <p className="mt-1 text-sm text-gray-500">{joinMeta(item.year, item.area_name, item.epistemology_name)}</p>
             {item.summary && <p className="mt-3 text-gray-600 line-clamp-3">{item.summary}</p>}
             <span className="inline-block mt-3 text-sm font-semibold text-navy">View details →</span>
           </Link>)}
-          {!filtered.length && <p className="col-span-full text-gray-500 text-center py-10">No records match this filter yet.</p>}
+          {!loading && !filtered.length && <p className="col-span-full text-gray-500 text-center py-10">No records match this filter yet.</p>}
         </div>
       </>}
     </section>

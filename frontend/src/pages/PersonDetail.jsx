@@ -1,7 +1,11 @@
+import ErrorNotice from "../components/ErrorNotice";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { api } from "../api";
 import PersonPhoto from "../components/PersonPhoto";
+import { joinMeta } from "../utils/joinMeta";
+import { safeUrl } from "../utils/safeUrl";
+import { usePageMeta } from "../utils/usePageMeta";
 
 const orcidUrl = (v) => (/^https?:\/\//.test(v) ? v : `https://orcid.org/${v}`);
 
@@ -9,6 +13,7 @@ export default function PersonDetail() {
   const { id } = useParams();
   const [person, setPerson] = useState(undefined); // undefined = loading, null = not found
   const [error, setError] = useState(null);
+  usePageMeta({ title: person?.name ?? "Researcher profile", description: person?.name ? `Research profile and outputs of ${person.name} at KBK Geoinformatika.` : "Researcher profile at KBK Geoinformatika." });
 
   useEffect(() => {
     setPerson(undefined);
@@ -16,16 +21,10 @@ export default function PersonDetail() {
       setPerson(null);
       return;
     }
-    api.getResearcher(id).then(setPerson).catch((e) => setError(e.message));
+    api.getResearcher(id).then(setPerson).catch((e) => { console.error("Failed to load content:", e); setError(true); });
   }, [id]);
 
-  if (error) {
-    return (
-      <div className="max-w-6xl mx-auto px-6 md:px-8 py-16 text-center text-gray-500">
-        Couldn't load this profile. {error}
-      </div>
-    );
-  }
+  if (error) return <ErrorNotice />;
   if (person === undefined) return null;
   if (person === null) {
     return (
@@ -37,6 +36,8 @@ export default function PersonDetail() {
   }
 
   const education = (person.education || "").split("\n").map((s) => s.trim()).filter(Boolean);
+  const interests = (person.interests || "").split("\n").map((s) => s.trim()).filter(Boolean);
+  const scholarUrl = safeUrl(person.scholar_url);
 
   return (
     <>
@@ -52,7 +53,7 @@ export default function PersonDetail() {
             {person.role}
             {person.area_name && (
               <>
-                {" "}&middot;{" "}
+                {person.role && " · "}
                 {person.area_slug ? (
                   <Link to={`/research/${person.area_slug}`} className="underline hover:text-white">
                     {person.area_name}
@@ -86,9 +87,9 @@ export default function PersonDetail() {
                   </a>
                 </div>
               )}
-              {person.scholar_url && (
+              {scholarUrl && (
                 <div>
-                  <a href={person.scholar_url} target="_blank" rel="noreferrer" className="text-navy font-semibold">
+                  <a href={scholarUrl} target="_blank" rel="noreferrer" className="text-navy font-semibold">
                     Google Scholar
                   </a>
                 </div>
@@ -97,22 +98,11 @@ export default function PersonDetail() {
           </aside>
 
           <div className="space-y-10">
-            {[["Intellectual Property/Patent", person.intellectual_properties, "intellectual-property"], ["Community Services", person.community_services, "community-services"]].map(([label, items, path]) =>
-              <div key={path}>
-                <h2 className="text-sm font-semibold text-gray-500 uppercase mb-3">{label} ({items.length})</h2>
-                <ul className="space-y-3">{items.map((item) => <li key={item.id}>
-                  <Link className="text-navy font-semibold hover:underline" to={`/${path}/${item.id}`}>{item.title}</Link>
-                  {item.year && <span className="text-gray-500 text-sm"> · {item.year}</span>}
-                </li>)}
-                {!items.length && <li className="text-gray-400 text-sm">None listed yet.</li>}</ul>
-              </div>)}
-            
-
             <div>
               <h2 className="text-sm font-semibold text-gray-500 uppercase mb-3">Research Interests</h2>
-              {person.interests.length > 0 ? (
+              {interests.length > 0 ? (
                 <ul className="space-y-2">
-                  {person.interests.split("\n").map((line, i) => (
+                  {interests.map((line, i) => (
                     <li key={i} className="text-[15px] text-gray-700 flex gap-2">
                       <span className="text-navy">&middot;</span>
                       <span>{line}</span>
@@ -120,7 +110,7 @@ export default function PersonDetail() {
                   ))}
                 </ul>
               ) : (
-                <p className="text-gray-400 text-sm">Not listed yet.</p>
+                <p className="text-gray-500 text-sm">Not listed yet.</p>
               )}
             </div>
 
@@ -137,7 +127,7 @@ export default function PersonDetail() {
                   ))}
                 </ul>
               ) : (
-                <p className="text-gray-400 text-sm">Not listed yet.</p>
+                <p className="text-gray-500 text-sm">Not listed yet.</p>
               )}
             </div>
 
@@ -148,14 +138,14 @@ export default function PersonDetail() {
               <ul className="space-y-4">
                 {person.projects.map((p) => (
                   <li key={p.id}>
-                    <div className="font-semibold text-[15px]">{p.title}</div>
+                    <Link to={`/projects/${p.id}`} className="font-semibold text-[15px] text-navy hover:underline">{p.title}</Link>
                     <div className="text-gray-500 text-[13px]">
-                      {[p.year, p.status, p.area_name].filter(Boolean).join(" · ")}
+                      {joinMeta(p.year, p.status, p.area_name)}
                     </div>
                     {p.summary && <p className="text-[14px] text-gray-600 mt-1">{p.summary}</p>}
                   </li>
                 ))}
-                {person.projects.length === 0 && <li className="text-gray-400 text-sm">None listed yet.</li>}
+                {person.projects.length === 0 && <li className="text-gray-500 text-sm">None listed yet.</li>}
               </ul>
             </div>
 
@@ -166,23 +156,32 @@ export default function PersonDetail() {
               <ul className="space-y-4">
                 {person.publications.map((p) => (
                   <li key={p.id}>
-                    <div className="font-semibold text-[15px]">{p.title}</div>
+                    <Link to={`/publications/${p.id}`} className="font-semibold text-[15px] text-navy hover:underline">{p.title}</Link>
                     <div className="text-gray-500 text-[13px]">
-                      {[p.authors, p.venue, p.year].filter(Boolean).join(" · ")}
+                      {joinMeta(p.authors, p.venue, p.year)}
                     </div>
                     <div className="flex gap-4 mt-1">
-                      {p.doi_url && (
-                        <a href={p.doi_url} target="_blank" rel="noreferrer" className="text-[13px] font-semibold text-navy">DOI</a>
+                      {safeUrl(p.doi_url) && (
+                        <a href={safeUrl(p.doi_url)} target="_blank" rel="noreferrer" className="text-[13px] font-semibold text-navy">DOI</a>
                       )}
-                      {p.pdf_url && (
-                        <a href={p.pdf_url} target="_blank" rel="noreferrer" className="text-[13px] font-semibold text-navy">PDF</a>
+                      {safeUrl(p.pdf_url) && (
+                        <a href={safeUrl(p.pdf_url)} target="_blank" rel="noreferrer" className="text-[13px] font-semibold text-navy">PDF</a>
                       )}
                     </div>
                   </li>
                 ))}
-                {person.publications.length === 0 && <li className="text-gray-400 text-sm">None listed yet.</li>}
+                {person.publications.length === 0 && <li className="text-gray-500 text-sm">None listed yet.</li>}
               </ul>
             </div>
+            {[["Intellectual Property/Patent", person.intellectual_properties, "intellectual-property"], ["Community Services", person.community_services, "community-services"]].map(([label, items, path]) =>
+              <div key={path}>
+                <h2 className="text-sm font-semibold text-gray-500 uppercase mb-3">{label} ({items.length})</h2>
+                <ul className="space-y-3">{items.map((item) => <li key={item.id}>
+                  <Link className="text-navy font-semibold hover:underline" to={`/${path}/${item.id}`}>{item.title}</Link>
+                  {item.year && <span className="text-gray-500 text-sm"> · {item.year}</span>}
+                </li>)}
+                {!items.length && <li className="text-gray-500 text-sm">None listed yet.</li>}</ul>
+              </div>)}
           </div>
         </div>
       </section>

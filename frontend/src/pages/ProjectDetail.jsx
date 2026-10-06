@@ -1,28 +1,16 @@
-import { useEffect, useState } from "react";
+import ErrorNotice from "../components/ErrorNotice";
 import { Link, useParams } from "react-router-dom";
 import { api } from "../api";
+import { joinMeta } from "../utils/joinMeta";
+import { useRecord } from "../hooks/useRecord";
+import { usePageMeta } from "../utils/usePageMeta";
 
 export default function ProjectDetail() {
   const { id } = useParams();
-  const [project, setProject] = useState(undefined); // undefined = loading, null = not found
-  const [error, setError] = useState(null);
+  const { record: project, error } = useRecord(id, api.getProject);
+  usePageMeta({ title: project?.title ?? "Project", description: project?.summary || "Research project from KBK Geoinformatika." });
 
-  useEffect(() => {
-    setProject(undefined);
-    if (!/^\d+$/.test(id)) {
-      setProject(null);
-      return;
-    }
-    api.getProject(id).then(setProject).catch((e) => setError(e.message));
-  }, [id]);
-
-  if (error) {
-    return (
-      <div className="max-w-6xl mx-auto px-6 md:px-8 py-16 text-center text-gray-500">
-        Couldn't load this project. {error}
-      </div>
-    );
-  }
+  if (error) return <ErrorNotice />;
   if (project === undefined) return null;
   if (project === null) {
     return (
@@ -36,25 +24,27 @@ export default function ProjectDetail() {
   return (
     <>
       <section className="bg-navy text-white py-14">
-        <div className="max-w-6xl mx-auto px-6 md:px-8 max-w-[820px]">
-          <Link to="/projects" className="text-blue-100/70 text-sm font-semibold hover:text-white">
-            ← All Projects
-          </Link>
-          <div className="flex flex-wrap items-center gap-3 mt-3">
-            <span
-              className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${
-                project.status === "Active" ? "bg-amber text-navy-dark" : "bg-white/20 text-white"
-              }`}
-            >
-              {project.status}
-            </span>
-            <span className="text-[14px] text-blue-100/70">
-              {[project.area_name, project.year].filter(Boolean).join(" · ")}
-            </span>
+        <div className="max-w-6xl mx-auto px-6 md:px-8">
+          <div className="max-w-[820px]">
+            <Link to="/projects" className="text-blue-100/70 text-sm font-semibold hover:text-white">
+              ← All Projects
+            </Link>
+            <div className="flex flex-wrap items-center gap-3 mt-3">
+              <span
+                className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${
+                  project.status === "Active" ? "bg-amber text-navy-dark" : "bg-white/20 text-white"
+                }`}
+              >
+                {project.status}
+              </span>
+              <span className="text-[14px] text-blue-100/70">
+                {joinMeta(project.area_name, project.year)}
+              </span>
+            </div>
+            <h1 className="font-display font-bold text-[28px] md:text-[38px] leading-tight mt-3">
+              {project.title}
+            </h1>
           </div>
-          <h1 className="font-display font-bold text-[28px] md:text-[38px] leading-tight mt-3">
-            {project.title}
-          </h1>
         </div>
       </section>
 
@@ -68,7 +58,7 @@ export default function ProjectDetail() {
                   {project.summary}
                 </p>
               ) : (
-                <p className="text-gray-400 text-sm">Not listed yet.</p>
+                <p className="text-gray-500 text-sm">Not listed yet.</p>
               )}
             </div>
 
@@ -97,19 +87,19 @@ export default function ProjectDetail() {
               <dl className="text-[14px] space-y-2">
                 {project.year && (
                   <div>
-                    <dt className="text-gray-400 text-[12.5px]">Year</dt>
+                    <dt className="text-gray-500 text-[12.5px]">Year</dt>
                     <dd className="text-gray-700">{project.year}</dd>
                   </div>
                 )}
                 {project.study_area && (
                   <div>
-                    <dt className="text-gray-400 text-[12.5px]">Study area</dt>
+                    <dt className="text-gray-500 text-[12.5px]">Study area</dt>
                     <dd className="text-gray-700">{project.study_area}</dd>
                   </div>
                 )}
                 {project.area_name && (
                   <div>
-                    <dt className="text-gray-400 text-[12.5px]">Ontology</dt>
+                    <dt className="text-gray-500 text-[12.5px]">Ontology</dt>
                     <dd>
                       {project.area_slug ? (
                         <Link to={`/research/${project.area_slug}`} className="text-navy font-semibold">
@@ -121,7 +111,7 @@ export default function ProjectDetail() {
                     </dd>
                   </div>
                 )}
-                {project.epistemology_name && <div><dt className="text-gray-400 text-[12.5px]">Epistemology</dt><dd>{project.epistemology_name}</dd></div>}
+                {project.epistemology_name && <div><dt className="text-gray-500 text-[12.5px]">Epistemology</dt><dd>{project.epistemology_name}</dd></div>}
               </dl>
             </div>
 
@@ -139,7 +129,7 @@ export default function ProjectDetail() {
                   </li>
                 ))}
                 {project.researchers.length === 0 && (
-                  <li className="text-gray-400 text-sm">None listed yet.</li>
+                  <li className="text-gray-500 text-sm">None listed yet.</li>
                 )}
               </ul>
             </div>

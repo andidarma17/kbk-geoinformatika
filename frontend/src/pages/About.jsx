@@ -1,5 +1,6 @@
 import SectionHeader from "../components/SectionHeader";
 import MockFlag from "../components/MockFlag";
+import { usePageMeta } from "../utils/usePageMeta";
 
 const timeline = [
   { year: "[Year]", label: "Group established within Departemen Teknik Geodesi" },
@@ -9,18 +10,21 @@ const timeline = [
 ];
 
 export default function About() {
+  usePageMeta({ title: "About", description: "Learn about KBK Geoinformatika and its geoinformatics research at Universitas Gadjah Mada." });
   return (
     <>
       <section className="bg-navy text-white py-20">
-        <div className="max-w-6xl mx-auto px-6 md:px-8 max-w-[720px]">
-          <h1 className="font-display font-bold text-[34px] md:text-[44px] leading-tight">
-            About KBK Geoinformatika
-          </h1>
-          <p className="mt-5 text-[17px] text-blue-100/80">
-            KBK Geoinformatika (Kelompok Bidang Keahlian Geoinformatika) is the
-            geoinformatics research group within the Department of Geodetic
-            Engineering, Faculty of Engineering, Universitas Gadjah Mada. KBK Geoinformatika is a merger of the Cadastre and Geoinformatics Engineering (CAGE) and Photogrammetry and Remote Sensing (FERS) KBKs.
-          </p>
+        <div className="max-w-6xl mx-auto px-6 md:px-8">
+          <div className="max-w-[720px]">
+            <h1 className="font-display font-bold text-[34px] md:text-[44px] leading-tight">
+              About KBK Geoinformatika
+            </h1>
+            <p className="mt-5 text-[17px] text-blue-100/80">
+              KBK Geoinformatika (Kelompok Bidang Keahlian Geoinformatika) is the
+              geoinformatics research group within the Department of Geodetic
+              Engineering, Faculty of Engineering, Universitas Gadjah Mada. KBK Geoinformatika is a merger of the Cadastre and Geoinformatics Engineering (CAGE) and Photogrammetry and Remote Sensing (FERS) KBKs.
+            </p>
+          </div>
         </div>
       </section>
 

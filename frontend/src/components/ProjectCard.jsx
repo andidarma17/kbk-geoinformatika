@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { joinMeta } from "../utils/joinMeta";
 
 export default function ProjectCard({ project }) {
   return (
@@ -16,7 +17,7 @@ export default function ProjectCard({ project }) {
           {project.title}
         </h3>
         <div className="text-[12.5px] text-gray-500 mb-2.5">
-          {project.area_name} &middot; {project.year}
+          {joinMeta(project.area_name, project.year)}
         </div>
         <p className="text-[13.5px] text-gray-500 flex-1 line-clamp-3">{project.summary}</p>
       </div>

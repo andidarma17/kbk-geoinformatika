@@ -3,13 +3,13 @@ import { adminApi } from "./AdminApi";
 import { api } from "../api";
 import { resourceConfigs } from "./resourceConfigs";
 import ResourceManager from "./ResourceManager";
+import { usePageMeta } from "../utils/usePageMeta";
 
 function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [researchers, setResearchers] = useState([]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,8 +30,9 @@ function LoginForm() {
         <h1 className="font-display font-bold text-navy text-lg mb-1">KBK Geoinformatika</h1>
         <p className="text-sm text-gray-500 mb-6">Admin sign in</p>
 
-        <label className="block text-xs font-semibold text-gray-500 mb-1">Email</label>
+        <label htmlFor="admin-login-email" className="block text-xs font-semibold text-gray-500 mb-1">Email</label>
         <input
+          id="admin-login-email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -39,15 +40,16 @@ function LoginForm() {
           autoFocus
         />
 
-        <label className="block text-xs font-semibold text-gray-500 mb-1">Password</label>
+        <label htmlFor="admin-login-password" className="block text-xs font-semibold text-gray-500 mb-1">Password</label>
         <input
+          id="admin-login-password"
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm mb-4"
         />
 
-        {error && <div className="text-red-500 text-sm mb-4">{error}</div>}
+        {error && <div role="alert" className="text-red-500 text-sm mb-4">{error}</div>}
 
         <button
           type="submit"
@@ -82,23 +84,25 @@ function ChangePasswordForm() {
   return (
     <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-lg p-6 max-w-md">
       <h2 className="text-xl font-bold mb-4">Change admin password</h2>
-      <label className="block text-xs font-semibold text-gray-500 mb-1">Current password</label>
+      <label htmlFor="admin-current-password" className="block text-xs font-semibold text-gray-500 mb-1">Current password</label>
       <input
+        id="admin-current-password"
         type="password"
         value={currentPassword}
         onChange={(e) => setCurrentPassword(e.target.value)}
         className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm mb-4"
       />
-      <label className="block text-xs font-semibold text-gray-500 mb-1">New password (min 8 chars)</label>
+      <label htmlFor="admin-new-password" className="block text-xs font-semibold text-gray-500 mb-1">New password (min 8 chars)</label>
       <input
+        id="admin-new-password"
         type="password"
         value={newPassword}
         onChange={(e) => setNewPassword(e.target.value)}
         className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm mb-4"
       />
-      {status?.ok && <div className="text-green-600 text-sm mb-3">Password updated.</div>}
-      {status?.error && <div className="text-red-500 text-sm mb-3">{status.error}</div>}
-      <button className="bg-amber text-navy-dark font-semibold px-4 py-2 rounded-md hover:bg-amber-dark">
+      {status?.ok && <div role="status" className="text-green-600 text-sm mb-3">Password updated.</div>}
+      {status?.error && <div role="alert" className="text-red-500 text-sm mb-3">{status.error}</div>}
+      <button type="submit" className="bg-amber text-navy-dark font-semibold px-4 py-2 rounded-md hover:bg-amber-dark">
         Update password
       </button>
     </form>
@@ -106,6 +110,7 @@ function ChangePasswordForm() {
 }
 
 export default function AdminApp() {
+  usePageMeta({ title: "Admin", description: "KBK Geoinformatika content administration." });
   const [session, setSession] = useState(undefined); // undefined = still checking
   const [tab, setTab] = useState("research-areas");
   const [epistemologies, setEpistemologies] = useState([]);

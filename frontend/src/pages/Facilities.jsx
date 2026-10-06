@@ -1,6 +1,7 @@
 import SectionHeader from "../components/SectionHeader";
 import MockFlag from "../components/MockFlag";
 import LabCard from "../components/LabCard";
+import { usePageMeta } from "../utils/usePageMeta";
 
 // Put photos in frontend/public/labs/ and reference them as "/labs/xxx.jpg"
 const labs = [
@@ -60,16 +61,19 @@ const categories = [
 ];
 
 export default function Facilities() {
+  usePageMeta({ title: "Facilities", description: "Explore the laboratories and facilities supporting KBK Geoinformatika research." });
   return (
     <>
       <section className="bg-navy text-white py-20">
-        <div className="max-w-6xl mx-auto px-6 md:px-8 max-w-[720px]">
-          <h1 className="font-display font-bold text-[34px] md:text-[44px] leading-tight">
-            Facilities &amp; Resources
-          </h1>
-          <p className="mt-5 text-[17px] text-blue-100/80">
-            Laboratories, software, equipment, and data resources supporting our research in geoinformatics, photogrammetry, and remote sensing.
-          </p>
+        <div className="max-w-6xl mx-auto px-6 md:px-8">
+          <div className="max-w-[720px]">
+            <h1 className="font-display font-bold text-[34px] md:text-[44px] leading-tight">
+              Facilities &amp; Resources
+            </h1>
+            <p className="mt-5 text-[17px] text-blue-100/80">
+              Laboratories, software, equipment, and data resources supporting our research in geoinformatics, photogrammetry, and remote sensing.
+            </p>
+          </div>
         </div>
       </section>
 

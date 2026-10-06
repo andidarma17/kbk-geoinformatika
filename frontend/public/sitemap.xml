@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- TODO: Replace the placeholder domain with the final production domain before deployment. -->
+  <url><loc>https://REPLACE-WITH-FINAL-DOMAIN.example/</loc></url>
+  <url><loc>https://REPLACE-WITH-FINAL-DOMAIN.example/about</loc></url>
+  <url><loc>https://REPLACE-WITH-FINAL-DOMAIN.example/research</loc></url>
+  <url><loc>https://REPLACE-WITH-FINAL-DOMAIN.example/people</loc></url>
+  <url><loc>https://REPLACE-WITH-FINAL-DOMAIN.example/projects</loc></url>
+  <url><loc>https://REPLACE-WITH-FINAL-DOMAIN.example/publications</loc></url>
+  <url><loc>https://REPLACE-WITH-FINAL-DOMAIN.example/intellectual-property</loc></url>
+  <url><loc>https://REPLACE-WITH-FINAL-DOMAIN.example/community-services</loc></url>
+  <url><loc>https://REPLACE-WITH-FINAL-DOMAIN.example/news</loc></url>
+  <url><loc>https://REPLACE-WITH-FINAL-DOMAIN.example/facilities</loc></url>
+  <url><loc>https://REPLACE-WITH-FINAL-DOMAIN.example/contact</loc></url>
+</urlset>

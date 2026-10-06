@@ -120,8 +120,8 @@ export const resourceConfigs = {
       { key: "link", label: "News link (https://...)", type: "text" },
       {
         key: "published_at",
-        label: "Published date (YYYY-MM-DD)",
-        type: "text",
+        label: "Published date",
+        type: "date",
       },
     ],
   },

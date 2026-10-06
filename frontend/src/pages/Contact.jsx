@@ -1,52 +1,52 @@
 import { api } from "../api";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import ErrorNotice from "../components/ErrorNotice";
+import { usePageMeta } from "../utils/usePageMeta";
 
 export default function Contact() {
+  usePageMeta({ title: "Contact & Collaboration", description: "Contact KBK Geoinformatika to discuss research, study, or collaboration opportunities." });
   const [form, setForm] = useState({ name: "", email: "", affiliation: "", message: "" });
+  const [website, setWebsite] = useState("");
   const [status, setStatus] = useState(null); // null | "sending" | "sent" | { error }
+  const mountedAt = useRef(Date.now());
 
   const handleChange = (key, value) => setForm((f) => ({ ...f, [key]: value }));
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setStatus("sending");
-  //   try {
-  //     const res = await fetch("/api/inquiries", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify(form)
-  //     });
-  //     const data = await res.json().catch(() => ({}));
-  //     if (!res.ok) throw new Error(data.error || "Something went wrong");
-  //     setStatus("sent");
-  //     setForm({ name: "", email: "", affiliation: "", message: "" });
-  //   } catch (err) {
-  //     setStatus({ error: err.message });
-  //   }
-  // };
-
-    const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (website) {
+      setStatus("sent");
+      setForm({ name: "", email: "", affiliation: "", message: "" });
+      setWebsite("");
+      return;
+    }
+    if (Date.now() - mountedAt.current < 3000) {
+      setStatus("too-soon");
+      return;
+    }
     setStatus("sending");
     try {
       await api.submitInquiry(form);
       setStatus("sent");
       setForm({ name: "", email: "", affiliation: "", message: "" });
     } catch (err) {
-      setStatus({ error: err.message });
+      console.error("Failed to send inquiry:", err);
+      setStatus({ error: true });
     }
   };
   
   return (
     <>
       <section className="bg-navy text-white py-20">
-        <div className="max-w-6xl mx-auto px-6 md:px-8 max-w-[720px]">
-          <h1 className="font-display font-bold text-[34px] md:text-[44px] leading-tight">
-            Contact &amp; Collaboration
-          </h1>
-          <p className="mt-5 text-[17px] text-blue-100/80">
-            Open to collaboration with prospective students, academic researchers, government agencies, and industry partners.
-          </p>
+        <div className="max-w-6xl mx-auto px-6 md:px-8">
+          <div className="max-w-[720px]">
+            <h1 className="font-display font-bold text-[34px] md:text-[44px] leading-tight">
+              Contact &amp; Collaboration
+            </h1>
+            <p className="mt-5 text-[17px] text-blue-100/80">
+              Open to collaboration with prospective students, academic researchers, government agencies, and industry partners.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -71,28 +71,39 @@ export default function Contact() {
           <div className="bg-white border border-gray-200 rounded-lg p-7">
             <h2 className="text-xl font-bold mb-5">Send an inquiry</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="sr-only" aria-hidden="true">
+                <label htmlFor="contact-website">Website</label>
+                <input id="contact-website" name="website" tabIndex={-1} autoComplete="off"
+                  value={website} onChange={(e) => setWebsite(e.target.value)} />
+              </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-500 mb-1">Name *</label>
+                <label htmlFor="contact-name" className="block text-xs font-semibold text-gray-500 mb-1">Name *</label>
                 <input
+                  id="contact-name"
                   required
+                  maxLength={200}
                   value={form.name}
                   onChange={(e) => handleChange("name", e.target.value)}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-500 mb-1">Email *</label>
+                <label htmlFor="contact-email" className="block text-xs font-semibold text-gray-500 mb-1">Email *</label>
                 <input
+                  id="contact-email"
                   type="email"
                   required
+                  maxLength={320}
                   value={form.email}
                   onChange={(e) => handleChange("email", e.target.value)}
                   className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-500 mb-1">Affiliation</label>
+                <label htmlFor="contact-affiliation" className="block text-xs font-semibold text-gray-500 mb-1">Affiliation</label>
                 <input
+                  id="contact-affiliation"
+                  maxLength={200}
                   value={form.affiliation}
                   onChange={(e) => handleChange("affiliation", e.target.value)}
                   placeholder="University, agency, or company"
@@ -100,9 +111,11 @@ export default function Contact() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-gray-500 mb-1">Message *</label>
+                <label htmlFor="contact-message" className="block text-xs font-semibold text-gray-500 mb-1">Message *</label>
                 <textarea
+                  id="contact-message"
                   required
+                  maxLength={5000}
                   rows={4}
                   value={form.message}
                   onChange={(e) => handleChange("message", e.target.value)}
@@ -111,9 +124,12 @@ export default function Contact() {
               </div>
 
               {status === "sent" && (
-                <div className="text-green-600 text-sm">Thanks — your message has been sent.</div>
+                <div role="status" className="text-green-600 text-sm">Thanks — your message has been sent.</div>
               )}
-              {status?.error && <div className="text-red-500 text-sm">{status.error}</div>}
+              {status === "too-soon" && (
+                <div role="alert" className="text-amber-800 text-sm">Please wait a moment and try again.</div>
+              )}
+              {status?.error && <ErrorNotice message="We couldn't send your message. Please try again later." className="text-red-600 text-sm" />}
 
               <button
                 type="submit"

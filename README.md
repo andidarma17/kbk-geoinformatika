@@ -28,14 +28,18 @@ kbk-geoinformatika/
 └── frontend/
     ├── index.html
     ├── package.json
+    ├── .nvmrc              (Node 20 for nvm)
+    ├── .env.example        (copy to .env and fill in)
     ├── vite.config.js
     ├── tailwind.config.js
     ├── postcss.config.js
     ├── .env                 (local only, not committed)
     ├── public/
+    │   ├── _headers         (Netlify security and cache headers)
     │   └── _redirects       (Netlify SPA routing rule)
     └── src/
-        ├── main.jsx         (routes)
+        ├── main.jsx         (startup and configuration errors)
+        ├── App.jsx          (routes)
         ├── api.js           (public data access via Supabase)
         ├── supabaseClient.js
         ├── components/      (Navbar, Footer, Layout, cards, ...)
@@ -64,7 +68,7 @@ kbk-geoinformatika/
 
 ## Running locally
 
-Requires Node.js 18+ and npm.
+Requires Node.js 20+ and npm. The `frontend/.nvmrc` file selects Node 20 when using nvm.
 
 ```bash
 cd frontend
@@ -74,10 +78,10 @@ npm run dev
 
 The site runs on http://localhost:5173.
 
-Run `npm test` for the Ontology/Epistemology filtering and validation tests,
+Run `npm test` for the automated tests,
 and `npm run build` to check the production bundle.
 
-Create `frontend/.env` with your Supabase project details:
+Copy `frontend/.env.example` to `frontend/.env`, then fill in your Supabase project details:
 
 ```
 VITE_SUPABASE_URL=https://YOUR-PROJECT-REF.supabase.co
@@ -118,7 +122,7 @@ changing them.
 | `community_services` | Community service activities |
 | `intellectual_property_researchers`, `community_service_researchers` | Links people to those outputs |
 
-Before deploying this update, run [`supabase/migrations/20261005_ontology_epistemology_outputs.sql`](supabase/migrations/20261005_ontology_epistemology_outputs.sql) in the Supabase SQL Editor. The migration keeps existing `research_areas` records and IDs; the display name becomes Ontology. It adds Epistemology as an optional child classification to existing people, projects and publications. Existing records remain visible, and the new categories can be assigned in `/admin`. The migration expects the existing `public.is_admin()` function used by the site's current policies. Back up production data before applying it. Deploy the frontend after the SQL succeeds; deploying it first will make taxonomy queries fail.
+If it has not already been applied, run [`supabase/migrations/20261005_ontology_epistemology_outputs.sql`](supabase/migrations/20261005_ontology_epistemology_outputs.sql) in the Supabase SQL Editor before deploying. It keeps existing `research_areas` records and IDs, adds Epistemology as an optional child classification, and expects the existing `public.is_admin()` function. Then apply [`supabase/migrations/20261006_indexes_and_inquiry_limits.sql`](supabase/migrations/20261006_indexes_and_inquiry_limits.sql), which adds taxonomy and researcher-link indexes plus length limits for new inquiry submissions. Back up production data before applying migrations. Codex has not run the 20261006 migration. Deploy the frontend after the SQL succeeds; deploying it first will make taxonomy queries fail.
 
 Security model (Row Level Security):
 
@@ -145,7 +149,7 @@ Tips:
   tick the researchers involved. Their profile pages then list that work.
 - **Tags** (Ontology): comma separated.
 - **Epistemology:** create it under an Ontology, then assign it to people and outputs. The form clears the Epistemology choice when you change its Ontology. Database constraints enforce the same parent-child relation.
-- The Field of Study diagram is stored at `frontend/public/Field of Study (Ontology).svg` and shown on the home and field-of-study pages.
+- The Field of Study diagram is stored at `frontend/public/field-of-study-ontology.svg` and shown on the home and field-of-study pages. Its text version lists the current Ontologies and Epistemologies from the database.
 
 ## Deploying (Netlify)
 
@@ -155,11 +159,11 @@ Tips:
    - Build command: `cd frontend && npm install && npm run build`
    - Publish directory: `frontend/dist`
 3. Add the two environment variables (`VITE_SUPABASE_URL` and
-   `VITE_SUPABASE_ANON_KEY`) in the site's environment settings, then
+   `VITE_SUPABASE_ANON_KEY`) and set `NODE_VERSION=20` in the site's
+   environment settings, then
    redeploy.
-4. Keep `frontend/public/_redirects` in the repository. It contains
-   `/*  /index.html  200` so that refreshing a page such as `/research`
-   or `/admin` does not return a 404.
+4. Keep `frontend/public/_redirects` and `frontend/public/_headers` in the repository. The redirect serves the SPA on deep links such as `/research` and `/admin`; `_headers` sets security and cache headers, including a report-only CSP.
+5. Replace the placeholder domain in `frontend/public/robots.txt` and `frontend/public/sitemap.xml` after the final domain is chosen.
 
 Every push to the main branch redeploys the site automatically.
 

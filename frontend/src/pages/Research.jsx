@@ -1,8 +1,11 @@
+import ErrorNotice from "../components/ErrorNotice";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api";
 import SectionHeader from "../components/SectionHeader";
 import OntologyDiagram from "../components/OntologyDiagram";
+import LoadingSkeleton from "../components/LoadingSkeleton";
+import { usePageMeta } from "../utils/usePageMeta";
 
 function AreaCard({ area, epistemologies }) {
   return (
@@ -25,7 +28,7 @@ function AreaCard({ area, epistemologies }) {
         <h4 className="text-xs font-semibold uppercase text-gray-500 mb-2">Epistemology</h4>
         {epistemologies.length ? <ul className="flex flex-wrap gap-2">
           {epistemologies.map((item) => <li key={item.id} className="text-xs bg-blue-50 text-navy rounded-full px-3 py-1">{item.name}</li>)}
-        </ul> : <p className="text-sm text-gray-400">No Epistemology listed yet.</p>}
+        </ul> : <p className="text-sm text-gray-500">No Epistemology listed yet.</p>}
       </div>
       <span className="text-[13.5px] font-semibold text-navy">View researchers, projects & publications →</span>
     </Link>
@@ -33,34 +36,35 @@ function AreaCard({ area, epistemologies }) {
 }
 
 export default function Research() {
+  usePageMeta({ title: "Field of Study (Ontology)", description: "Explore the Ontologies and Epistemologies that guide KBK Geoinformatika research." });
   const [areas, setAreas] = useState([]);
   const [epistemologies, setEpistemologies] = useState([]);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let active = true;
     Promise.all([api.getResearchAreas(), api.getEpistemologies()])
-      .then(([a, e]) => { setAreas(a); setEpistemologies(e); })
-      .catch((e) => setError(e.message));
+      .then(([a, e]) => { if (active) { setAreas(a); setEpistemologies(e); } })
+      .catch((e) => { if (active) { console.error("Failed to load content:", e); setError(true); } })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, []);
 
-  if (error) {
-    return (
-      <div className="max-w-6xl mx-auto px-6 md:px-8 py-16 text-center text-gray-500">
-        Couldn't load research data from the API. {error}
-      </div>
-    );
-  }
+  if (error) return <ErrorNotice />;
 
   return (
     <>
       <section className="bg-navy text-white py-20">
-        <div className="max-w-6xl mx-auto px-6 md:px-8 max-w-[720px]">
-          <h1 className="font-display font-bold text-[34px] md:text-[44px] leading-tight">
-            Field of Study (Ontology)
-          </h1>
-          <p className="mt-5 text-[17px] text-blue-100/80">
-            Explore our Ontologies and the Epistemologies within each field of study.
-          </p>
+        <div className="max-w-6xl mx-auto px-6 md:px-8">
+          <div className="max-w-[720px]">
+            <h1 className="font-display font-bold text-[34px] md:text-[44px] leading-tight">
+              Field of Study (Ontology)
+            </h1>
+            <p className="mt-5 text-[17px] text-blue-100/80">
+              Explore our Ontologies and the Epistemologies within each field of study.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -71,12 +75,14 @@ export default function Research() {
             title="Field of Study (Ontology)"
             description="Select an area below to see the people and projects behind it."
           />
-          <OntologyDiagram />
+          <OntologyDiagram areas={areas} epistemologies={epistemologies} loading={loading} />
           <div className="space-y-6">
-  {areas.map((area) => (
-    <AreaCard key={area.id} area={area} epistemologies={epistemologies.filter((item) => item.research_area_id === area.id)} />
-  ))}
-</div>
+            {loading && <LoadingSkeleton count={2} />}
+            {areas.map((area) => (
+              <AreaCard key={area.id} area={area} epistemologies={epistemologies.filter((item) => item.research_area_id === area.id)} />
+            ))}
+            {!loading && areas.length === 0 && <p className="text-gray-500">No fields of study listed yet.</p>}
+          </div>
         </div>
       </section>
 

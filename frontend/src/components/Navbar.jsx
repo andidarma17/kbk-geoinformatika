@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 
 const navStructure = [
   { type: "path", to: "/", label: "Home" },
@@ -26,9 +26,13 @@ const navStructure = [
   { type: "path", to: "/news", label: "News" }
 ];
 
-function Dropdown({ item, openMenu, setOpenMenu }) {
+const isWithin = (pathname, to) => pathname === to || pathname.startsWith(`${to}/`);
+
+function Dropdown({ item, openMenu, setOpenMenu, pathname }) {
   const ref = useRef(null);
+  const buttonRef = useRef(null);
   const isOpen = openMenu === item.label;
+  const isActive = item.items.some((sub) => isWithin(pathname, sub.to));
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -43,13 +47,22 @@ function Dropdown({ item, openMenu, setOpenMenu }) {
   }, [setOpenMenu]);
 
   return (
-    <div className="relative" ref={ref}>
+    <div className="relative" ref={ref} onKeyDown={(event) => {
+      if (event.key === "Escape" && isOpen) {
+        setOpenMenu(null);
+        buttonRef.current?.focus();
+      }
+    }}>
       <button
+        ref={buttonRef}
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
         onClick={(e) => {
           e.stopPropagation(); // Prevents immediate close on open
           setOpenMenu(isOpen ? null : item.label);
         }}
-        className="flex items-center gap-1 text-[14.5px] font-medium text-gray-500 hover:text-navy transition-colors"
+        className={`flex items-center gap-1 text-[14.5px] font-medium hover:text-navy transition-colors ${isActive ? "text-navy" : "text-gray-500"}`}
       >
         {item.label}
         <svg width="10" height="10" viewBox="0 0 10 10" className={`transition-transform ${isOpen ? "rotate-180" : ""}`}>
@@ -58,16 +71,17 @@ function Dropdown({ item, openMenu, setOpenMenu }) {
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-md shadow-sm py-1.5 min-w-[250px] z-50">
+        <div role="menu" aria-label={item.label} className="absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-md shadow-sm py-1.5 min-w-[250px] z-50">
           {item.items.map((sub) => (
-            <Link
+            <NavLink
               key={sub.to}
               to={sub.to}
+              role="menuitem"
               onClick={() => setOpenMenu(null)}
-              className="block px-4 py-2 text-[14px] text-gray-600 hover:bg-gray-50 hover:text-navy"
+              className={({ isActive: active }) => `block px-4 py-2 text-[14px] hover:bg-gray-50 hover:text-navy ${active ? "text-navy font-semibold" : "text-gray-600"}`}
             >
               {sub.label}
-            </Link>
+            </NavLink>
           ))}
         </div>
       )}
@@ -80,7 +94,21 @@ export default function Navbar() {
   const [openMenu, setOpenMenu] = useState(null); // desktop dropdown
   const location = useLocation();
 
-  useEffect(() => setOpen(false), [location.pathname]);
+  useEffect(() => {
+    setOpen(false);
+    setOpenMenu(null);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    function closeOnEscape(event) {
+      if (event.key === "Escape") {
+        setOpenMenu(null);
+        setOpen(false);
+      }
+    }
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
@@ -93,28 +121,30 @@ export default function Navbar() {
         <nav className="hidden md:flex items-center gap-7">
           {navStructure.map((item) =>
             item.type === "dropdown" ? (
-              <Dropdown key={item.label} item={item} openMenu={openMenu} setOpenMenu={setOpenMenu} />
+              <Dropdown key={item.label} item={item} openMenu={openMenu} setOpenMenu={setOpenMenu} pathname={location.pathname} />
             ) : (
-              <Link
+              <NavLink
                 key={item.to}
                 to={item.to}
-                className="text-[14.5px] font-medium text-gray-500 hover:text-navy transition-colors"
+                end={item.to === "/"}
+                className={({ isActive }) => `text-[14.5px] font-medium hover:text-navy transition-colors ${isActive ? "text-navy" : "text-gray-500"}`}
               >
                 {item.label}
-              </Link>
+              </NavLink>
             )
           )}
-          <Link
+          <NavLink
             to="/contact"
-            className="bg-navy text-white px-5 py-2 rounded-md text-sm font-semibold hover:bg-navy-dark transition-colors"
+            className={({ isActive }) => `${isActive ? "bg-amber text-navy" : "bg-navy text-white hover:bg-navy-dark"} px-5 py-2 rounded-md text-sm font-semibold transition-colors`}
           >
             Contact
-          </Link>
+          </NavLink>
         </nav>
 
         <button
           className="md:hidden flex flex-col gap-1.5 p-1.5"
-          aria-label="Open menu"
+          aria-label={open ? "Close menu" : "Open menu"}
+          aria-expanded={open}
           onClick={() => setOpen((o) => !o)}
         >
           <span className="w-5 h-0.5 bg-gray-900" />
@@ -128,26 +158,26 @@ export default function Navbar() {
           {navStructure.map((item) =>
             item.type === "dropdown" ? (
               <div key={item.label} className="py-2.5 border-b border-gray-100">
-                <div className="text-[13px] font-semibold text-gray-400 uppercase mb-1.5">
+                <div className="text-[13px] font-semibold text-gray-500 uppercase mb-1.5">
                   {item.label}
                 </div>
                 <div className="flex flex-col gap-2 pl-2">
                   {item.items.map((sub) => (
-                    <Link key={sub.to} to={sub.to} className="text-[15px] text-gray-700">
+                    <NavLink key={sub.to} to={sub.to} className={({ isActive }) => `text-[15px] ${isActive ? "text-navy font-semibold" : "text-gray-700"}`}>
                       {sub.label}
-                    </Link>
+                    </NavLink>
                   ))}
                 </div>
               </div>
             ) : (
-              <Link key={item.to} to={item.to} className="py-2.5 text-[15px] border-b border-gray-100">
+              <NavLink key={item.to} to={item.to} end={item.to === "/"} className={({ isActive }) => `py-2.5 text-[15px] border-b border-gray-100 ${isActive ? "text-navy font-semibold" : "text-gray-700"}`}>
                 {item.label}
-              </Link>
+              </NavLink>
             )
           )}
-          <Link to="/contact" className="py-2.5 text-[15px] font-semibold text-navy">
+          <NavLink to="/contact" className="py-2.5 text-[15px] font-semibold text-navy">
             Contact
-          </Link>
+          </NavLink>
         </div>
       )}
     </header>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { safeUrl } from "../utils/safeUrl";
 
 function initials(name = "") {
   const letters = name
@@ -13,15 +14,16 @@ function initials(name = "") {
 
 export default function PersonPhoto({ person, className = "" }) {
   const [failed, setFailed] = useState(false);
+  const photoUrl = safeUrl(person.photo_url);
   useEffect(() => setFailed(false), [person.photo_url]);
 
   return (
     <div
       className={`bg-gray-200 overflow-hidden flex items-center justify-center text-gray-500 text-lg font-semibold ${className}`}
     >
-      {person.photo_url && !failed ? (
+      {photoUrl && !failed ? (
         <img
-          src={person.photo_url}
+          src={photoUrl}
           alt={`Photo of ${person.name}`}
           loading="lazy"
           referrerPolicy="no-referrer"

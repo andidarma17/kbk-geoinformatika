@@ -1,3 +1,4 @@
+import ErrorNotice from "../components/ErrorNotice";
 import OntologyDiagram from "../components/OntologyDiagram";
 import { useEffect, useState } from "react";
 import { api } from "../api";
@@ -10,47 +11,48 @@ import PublicationRow from "../components/PublicationRow";
 import PersonCard from "../components/PersonCard";
 import NewsCard from "../components/NewsCard";
 import StatBlock from "../components/StatBlock";
+import LoadingSkeleton from "../components/LoadingSkeleton";
+import { usePageMeta } from "../utils/usePageMeta";
 
 export default function Home() {
+  usePageMeta({ title: "Home", description: "Explore KBK Geoinformatika research, researchers, projects, publications, and news at Universitas Gadjah Mada." });
   const [areas, setAreas] = useState([]);
+  const [epistemologies, setEpistemologies] = useState([]);
   const [projects, setProjects] = useState([]);
   const [publications, setPublications] = useState([]);
   const [researchers, setResearchers] = useState([]);
   const [news, setNews] = useState([]);
   const [stats, setStats] = useState(null);
-  const [error, setError] = useState(null);
-
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      api.getResearchAreas(),
-      api.getProjects(),
-      api.getPublications(),
-      api.getResearchers(),
-      api.getNews(),
-      api.getStats()
-    ])
-      .then(([areasRes, projectsRes, pubsRes, researchersRes, newsRes, statsRes]) => {
-        setAreas(areasRes);
-        setProjects(projectsRes);
-        setPublications(pubsRes);
-        setResearchers(researchersRes);
-        setNews(newsRes);
-        setStats(statsRes);
-      })
-      .catch((err) => setError(err.message));
+    let active = true;
+    const requests = [
+      { section: "areas", promise: api.getResearchAreas(), update: setAreas },
+      { section: "epistemologies", promise: api.getEpistemologies(), update: setEpistemologies },
+      { section: "projects", promise: api.getProjects({ limit: 3 }), update: setProjects },
+      { section: "publications", promise: api.getPublications({ limit: 3 }), update: setPublications },
+      { section: "researchers", promise: api.getResearchers({ limit: 4 }), update: setResearchers },
+      { section: "news", promise: api.getNews({ limit: 3 }), update: setNews },
+      { section: "stats", promise: api.getStats(), update: setStats },
+    ];
+    Promise.allSettled(requests.map(({ promise }) => promise)).then((results) => {
+      if (!active) return;
+      const failed = {};
+      results.forEach((result, index) => {
+        const { section, update } = requests[index];
+        if (result.status === "fulfilled") update(result.value);
+        else {
+          console.error(`Failed to load ${section}:`, result.reason);
+          failed[section] = true;
+        }
+      });
+      setErrors(failed);
+      setLoading(false);
+    });
+    return () => { active = false; };
   }, []);
-
-  if (error) {
-    return (
-      <div className="max-w-6xl mx-auto px-6 md:px-8 py-16 text-center text-gray-500">
-        Couldn't reach the backend API at <code>/api</code>. Make sure the
-        backend server is running (<code>npm run dev</code> in{" "}
-        <code>backend/</code>) and seeded (<code>npm run seed</code>).
-        <div className="text-xs mt-2 text-red-500">{error}</div>
-      </div>
-    );
-  }
 
   return (
     <>
@@ -75,12 +77,16 @@ export default function Home() {
               dimensions of maritime boundaries.
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-px bg-gray-200 border border-gray-200 rounded-lg overflow-hidden h-fit">
-            <StatBlock value={stats?.areas ?? "–"} label="Field of Study (Ontology)" />
-            <StatBlock value={stats?.researchers ?? "–"} label="Researchers & students" />
-            <StatBlock value={stats?.projects ?? "–"} label="Active projects" />
-            <StatBlock value={stats?.publications ?? "–"} label="Publications" />
-          </div>
+          {errors.stats ? <ErrorNotice className="self-center text-gray-600" /> : (
+            <div className="grid grid-cols-2 gap-px bg-gray-200 border border-gray-200 rounded-lg overflow-hidden h-fit">
+              {loading ? <LoadingSkeleton count={4} /> : <>
+                <StatBlock value={stats?.areas ?? "–"} label="Field of Study (Ontology)" />
+                <StatBlock value={stats?.researchers ?? "–"} label="Researchers & students" />
+                <StatBlock value={stats?.projects ?? "–"} label="Active projects" />
+                <StatBlock value={stats?.publications ?? "–"} label="Publications" />
+              </>}
+            </div>
+          )}
         </div>
       </section>
 
@@ -100,12 +106,14 @@ export default function Home() {
               All Fields of Study →
             </Link>
           </div>
-          <OntologyDiagram />
+          <OntologyDiagram areas={areas} epistemologies={epistemologies} loading={loading} error={errors.areas || errors.epistemologies} />
           <div className="grid md:grid-cols-2 gap-5">
+            {loading && <LoadingSkeleton count={2} />}
+            {errors.areas && <ErrorNotice className="md:col-span-2 py-6 text-center text-gray-600" />}
             {areas.map((area) => (
-            <Link key={area.id} to={`/research/${area.slug}`}>
-            <ResearchAreaCard area={area} />
-            </Link>
+              <Link key={area.id} to={`/research/${area.slug}`} className="block">
+                <ResearchAreaCard area={area} />
+              </Link>
             ))}
           </div>
           
@@ -130,7 +138,9 @@ export default function Home() {
           </div>
           
           <div className="grid md:grid-cols-3 gap-5">
-            {projects.slice(0, 3).map((project) => (
+            {loading && <LoadingSkeleton />}
+            {errors.projects && <ErrorNotice className="md:col-span-3 py-6 text-center text-gray-600" />}
+            {projects.map((project) => (
               <ProjectCard key={project.id} project={project} />
             ))}
           </div>
@@ -155,7 +165,9 @@ export default function Home() {
           </div>
           
           <div className="border-t border-gray-200">
-            {publications.slice(0, 3).map((pub) => (
+            {loading && <LoadingSkeleton />}
+            {errors.publications && <ErrorNotice className="py-6 text-center text-gray-600" />}
+            {publications.map((pub) => (
               <PublicationRow key={pub.id} pub={pub} />
             ))}
           </div>
@@ -180,7 +192,9 @@ export default function Home() {
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-            {researchers.slice(0, 4).map((person) => (
+            {loading && <LoadingSkeleton count={4} />}
+            {errors.researchers && <ErrorNotice className="col-span-full py-6 text-center text-gray-600" />}
+            {researchers.map((person) => (
               <PersonCard key={person.id} person={person} />
             ))}
           </div>
@@ -205,7 +219,9 @@ export default function Home() {
           </div>
           
           <div className="grid md:grid-cols-3 gap-5">
-            {news.slice(0, 3).map((item) => (
+            {loading && <LoadingSkeleton />}
+            {errors.news && <ErrorNotice className="md:col-span-3 py-6 text-center text-gray-600" />}
+            {news.map((item) => (
               <NewsCard key={item.id} item={item} />
             ))}
           </div>
