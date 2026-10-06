@@ -49,22 +49,22 @@ kbk-geoinformatika/
 
 ## Pages
 
-| Route | Page |
-|-------|------|
-| `/` | Home |
-| `/about` | About the group |
-| `/research` | Field of Study (Ontology) overview and diagram |
-| `/research/:slug` | One Ontology, its Epistemologies and related outputs |
-| `/projects` | Projects directory (filter by status, Ontology and Epistemology) |
-| `/publications` | Publications directory (search, filter by Ontology, Epistemology and year) |
-| `/intellectual-property` | Intellectual Property/Patent directory and detail pages |
-| `/community-services` | Community Services directory and detail pages |
-| `/people` | People directory (filter by role, Ontology and Epistemology) |
-| `/people/:id` | Researcher profile: education, projects, publications |
-| `/facilities` | Facilities and resources |
-| `/news` | News and activities |
-| `/contact` | Contact and inquiry form |
-| `/admin` | Admin dashboard (login required, hidden from search engines) |
+| Route                    | Page                                                                       |
+| ------------------------ | -------------------------------------------------------------------------- |
+| `/`                      | Home                                                                       |
+| `/about`                 | About the group                                                            |
+| `/research`              | Field of Study (Ontology) overview and diagram                             |
+| `/research/:slug`        | One Ontology, its Epistemologies and related outputs                       |
+| `/projects`              | Projects directory (filter by status, Ontology and Epistemology)           |
+| `/publications`          | Publications directory (search, filter by Ontology, Epistemology and year) |
+| `/intellectual-property` | Intellectual Property/Patent directory and detail pages                    |
+| `/community-services`    | Community Services directory and detail pages                              |
+| `/people`                | People directory (filter by role, Ontology and Epistemology)               |
+| `/people/:id`            | Researcher profile: education, projects, publications                      |
+| `/facilities`            | Facilities and resources                                                   |
+| `/news`                  | News and activities                                                        |
+| `/contact`               | Contact and inquiry form                                                   |
+| `/admin`                 | Admin dashboard (login required, hidden from search engines)               |
 
 ## Running locally
 
@@ -107,20 +107,20 @@ changing them.
 
 ### Database
 
-| Table | Purpose |
-|-------|---------|
-| `research_areas` | Name, slug, description, tags |
-| `researchers` | Profile fields, education (one entry per line), photo URL, research area |
-| `projects` | Title, year, status, summary, study area, methodology, research area |
-| `publications` | Title, authors, year, venue, DOI/PDF URLs, research area |
-| `news` | Title, body, published date |
-| `inquiries` | Contact form submissions (only the admin can read them) |
-| `project_researchers` | Links researchers to projects |
-| `publication_researchers` | Links researchers to publications |
-| `epistemologies` | Subcategories of an Ontology (`research_areas`) |
-| `intellectual_properties` | Intellectual property and patents |
-| `community_services` | Community service activities |
-| `intellectual_property_researchers`, `community_service_researchers` | Links people to those outputs |
+| Table                                                                | Purpose                                                                  |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `research_areas`                                                     | Name, slug, description, tags                                            |
+| `researchers`                                                        | Profile fields, education (one entry per line), photo URL, research area |
+| `projects`                                                           | Title, year, status, summary, study area, methodology, research area     |
+| `publications`                                                       | Title, authors, year, venue, DOI/PDF URLs, research area                 |
+| `news`                                                               | Title, body, published date                                              |
+| `inquiries`                                                          | Contact form submissions (only the admin can read them)                  |
+| `project_researchers`                                                | Links researchers to projects                                            |
+| `publication_researchers`                                            | Links researchers to publications                                        |
+| `epistemologies`                                                     | Subcategories of an Ontology (`research_areas`)                          |
+| `intellectual_properties`                                            | Intellectual property and patents                                        |
+| `community_services`                                                 | Community service activities                                             |
+| `intellectual_property_researchers`, `community_service_researchers` | Links people to those outputs                                            |
 
 If it has not already been applied, run [`supabase/migrations/20261005_ontology_epistemology_outputs.sql`](supabase/migrations/20261005_ontology_epistemology_outputs.sql) in the Supabase SQL Editor before deploying. It keeps existing `research_areas` records and IDs, adds Epistemology as an optional child classification, and expects the existing `public.is_admin()` function. Then apply [`supabase/migrations/20261006_indexes_and_inquiry_limits.sql`](supabase/migrations/20261006_indexes_and_inquiry_limits.sql), which adds taxonomy and researcher-link indexes plus length limits for new inquiry submissions. Back up production data before applying migrations. Codex has not run the 20261006 migration. Deploy the frontend after the SQL succeeds; deploying it first will make taxonomy queries fail.
 
@@ -129,43 +129,6 @@ Security model (Row Level Security):
 - Content tables: anyone can read, only the admin can write.
 - `inquiries`: anyone can submit, only the admin can read or delete.
 - The admin is identified by the email in the `is_admin()` SQL function.
-
-## Admin dashboard
-
-Open `/admin` and sign in with the admin email and password. Tabs:
-Field of Study (Ontology), Epistemology, Researchers, Projects, Publications,
-Intellectual Property/Patent, Community Services, News, Inquiries, and
-Settings (change password).
-
-Tips:
-
-- **Photo URL:** paste the direct link to an image file. If the image
-  server blocks other sites from displaying its images, the card falls
-  back to the person's initials. Hosting the image in `frontend/public/`
-  or Supabase Storage avoids this.
-- **Education:** one entry per line, for example
-  `PhD in Geodetic Engineering, UGM, 2022`.
-- **Linking people to work:** in the Projects and Publications forms,
-  tick the researchers involved. Their profile pages then list that work.
-- **Tags** (Ontology): comma separated.
-- **Epistemology:** create it under an Ontology, then assign it to people and outputs. The form clears the Epistemology choice when you change its Ontology. Database constraints enforce the same parent-child relation.
-- The Field of Study diagram is stored at `frontend/public/field-of-study-ontology.svg` and shown on the home and field-of-study pages. Its text version lists the current Ontologies and Epistemologies from the database.
-
-## Deploying (Netlify)
-
-1. Push the repository to GitHub.
-2. In Netlify, import the repository and use these build settings:
-   - Base directory: leave empty
-   - Build command: `cd frontend && npm install && npm run build`
-   - Publish directory: `frontend/dist`
-3. Add the two environment variables (`VITE_SUPABASE_URL` and
-   `VITE_SUPABASE_ANON_KEY`) and set `NODE_VERSION=20` in the site's
-   environment settings, then
-   redeploy.
-4. Keep `frontend/public/_redirects` and `frontend/public/_headers` in the repository. The redirect serves the SPA on deep links such as `/research` and `/admin`; `_headers` sets security and cache headers, including a report-only CSP.
-5. Replace the placeholder domain in `frontend/public/robots.txt` and `frontend/public/sitemap.xml` after the final domain is chosen.
-
-Every push to the main branch redeploys the site automatically.
 
 ### Things to watch
 
@@ -179,12 +142,12 @@ Every push to the main branch redeploys the site automatically.
 
 ## Brand colors
 
-| Token | Hex |
-|-------|-----|
-| `navy` | `#01416D` |
-| `navy-dark` | `#012C4A` |
-| `amber` | `#FCC104` |
+| Token        | Hex       |
+| ------------ | --------- |
+| `navy`       | `#01416D` |
+| `navy-dark`  | `#012C4A` |
+| `amber`      | `#FCC104` |
 | `amber-dark` | `#D9A700` |
-| white | `#FFFFFF` |
+| white        | `#FFFFFF` |
 
 Defined in `frontend/tailwind.config.js`.

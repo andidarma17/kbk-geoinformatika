@@ -56,8 +56,8 @@ export default function Contact() {
             <h2 className="text-xl font-bold mb-4">Get in touch</h2>
             <div className="space-y-3 text-[15px] text-gray-600 mb-8">
               <p>Departemen Teknik Geodesi<br />Fakultas Teknik<br />Universitas Gadjah Mada<br />Yogyakarta, Indonesia</p>
-              <p>Email: <a href="mailto:geoinformatika@geodesi.ugm.ac.id" className="text-navy font-semibold">geoinformatika@geodesi.ugm.ac.id</a></p>
-              <p>[Placeholder phone number]</p>
+              <p>Email: <a href="mailto:geodesi@ugm.ac.id" className="text-navy font-semibold">geodesi@ugm.ac.id</a></p>
+              <p>(+62274)520226</p>
             </div>
 
             <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Who this is for</h3>

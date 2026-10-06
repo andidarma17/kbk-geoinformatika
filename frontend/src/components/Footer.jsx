@@ -36,8 +36,8 @@ export default function Footer() {
           </div>
           <div>
             <h4 className="text-[13px] text-gray-500 font-semibold mb-3.5">Contact</h4>
-            <p className="text-sm text-gray-500 mb-2.5 break-all">geoinformatika@geodesi.ugm.ac.id</p>
-            <p className="text-sm text-gray-500 mb-2.5">[Placeholder phone / address]</p>
+            <p><a href="mailto:geodesi@ugm.ac.id" className="block text-sm text-gray-500 mb-2.5 hover:text-navy">geodesi@ugm.ac.id</a> </p>
+            <p className="text-sm text-gray-500 mb-2.5">(+62274) 520226</p>
           </div>
         </div>
         <div className="border-t border-gray-200 pt-5 flex flex-wrap justify-between gap-2 text-xs text-gray-500">

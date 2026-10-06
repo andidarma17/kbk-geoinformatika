@@ -85,8 +85,89 @@ export default function Research() {
           </div>
         </div>
       </section>
+<section className="py-16 bg-gray-50 border-t border-gray-200">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="mb-12 max-w-3xl">
+      <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-4">
+        Research Methodologies
+      </h2>
+      <p className="text-lg text-gray-500">
+        How we acquire, process, and apply spatial data across our four core disciplines to deliver comprehensive geospatial solutions.
+      </p>
+    </div>
 
-      <section className="bg-white border-t border-gray-200 py-16">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+      {/* Photogrammetry */}
+      <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 transition duration-300 hover:shadow-md">
+        <div className="flex items-center mb-4">
+          <div className="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center mr-4">
+            {/* Icon Drone / 3D */}
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-bold text-gray-900">Precision 3D Reconstruction</h3>
+        </div>
+        <p className="text-sm text-indigo-600 font-semibold mb-3 uppercase tracking-wider">Photogrammetry</p>
+        <p className="text-gray-600 text-[15.5px] leading-relaxed">
+          We utilize UAVs, terrestrial cameras, and LiDAR scanning to capture high-resolution point clouds and orthophotos. This methodology relies on Structure from Motion (SfM) to extract highly accurate metric measurements and 3D models of the environment.
+        </p>
+      </div>
+
+      {/* Remote Sensing */}
+      <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 transition duration-300 hover:shadow-md">
+        <div className="flex items-center mb-4">
+          <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center mr-4">
+            {/* Icon Satellite / Wave */}
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-bold text-gray-900">Earth Observation & Spectral Analysis</h3>
+        </div>
+        <p className="text-sm text-emerald-600 font-semibold mb-3 uppercase tracking-wider">Remote Sensing</p>
+        <p className="text-gray-600 text-[15.5px] leading-relaxed">
+          We extract critical bio-physical parameters and monitor temporal environmental changes without direct contact by analyzing spectral signatures from passive optical sensors and microwave backscatter from active radar (SAR).
+        </p>
+      </div>
+
+      {/* Geospatial Visualization */}
+      <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 transition duration-300 hover:shadow-md">
+        <div className="flex items-center mb-4">
+          <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center mr-4">
+            {/* Icon Code / Web */}
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-bold text-gray-900">Geocomputation & Spatial Engineering</h3>
+        </div>
+        <p className="text-sm text-blue-600 font-semibold mb-3 uppercase tracking-wider">Geo Visualization</p>
+        <p className="text-gray-600 text-[15.5px] leading-relaxed">
+          We transform raw geometric data into scalable intelligence by structuring data within advanced spatial databases (PostGIS), applying machine learning, and deploying interactive WebGIS architectures to uncover hidden spatial patterns.
+        </p>
+      </div>
+
+      {/* Cadaster */}
+      <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 transition duration-300 hover:shadow-md">
+        <div className="flex items-center mb-4">
+          <div className="w-10 h-10 bg-amber-100 text-amber-600 rounded-lg flex items-center justify-center mr-4">
+            {/* Icon Map / Policy */}
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-bold text-gray-900">Land Informatics & Policy Integration</h3>
+        </div>
+        <p className="text-sm text-amber-600 font-semibold mb-3 uppercase tracking-wider">Cadaster</p>
+        <p className="text-gray-600 text-[15.5px] leading-relaxed">
+          We bridge technical mapping with socio-legal realities. By applying frameworks like LADM and rigorous spatial analysis, we digitize land registry data and provide a data-driven foundation for sustainable urban planning.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+      {/* <section className="bg-white border-t border-gray-200 py-16">
         <div className="max-w-6xl mx-auto px-6 md:px-8">
           <SectionHeader
             kicker="Methods"
@@ -114,7 +195,8 @@ export default function Research() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
     </>
+    
   );
 }
