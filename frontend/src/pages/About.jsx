@@ -1,3 +1,5 @@
+import CollaborationCTA from "../components/CollaborationCTA";
+import PageHero from "../components/PageHero";
 import SectionHeader from "../components/SectionHeader";
 import MockFlag from "../components/MockFlag";
 import { usePageMeta } from "../utils/usePageMeta";
@@ -14,7 +16,7 @@ export default function About() {
   usePageMeta({ title: "About", description: "Learn about KBK Geoinformatika and its geoinformatics research at Universitas Gadjah Mada." });
   return (
     <>
-      <section className="bg-navy text-white py-20">
+      <PageHero theme="about" className="py-20">
         <div className="max-w-6xl mx-auto px-6 md:px-8">
           <div className="max-w-[720px]">
             <h1 className="font-display font-extrabold text-[34px] md:text-[44px] leading-tight">
@@ -36,7 +38,7 @@ export default function About() {
             </p>
           </div>
         </div>
-      </section>
+      </PageHero>
 
       {/* <section className="py-16">
         
@@ -231,26 +233,7 @@ export default function About() {
         </div>
       </section> */}
 
-      <section className="bg-navy-dark text-white">
-              <div className="max-w-6xl mx-auto px-6 md:px-8 py-14 flex flex-wrap items-center justify-between gap-6">
-                <div>
-                  <h2 className="text-[26px] font-bold text-white max-w-[520px]">
-                    Open to collaboration with academic, government, and industry
-                    partners.
-                  </h2>
-                  <p className="text-blue-100/70 mt-2 text-[14.5px]">
-                    Reach out to discuss research partnerships, student projects, or
-                    applied geospatial work.
-                  </p>
-                </div>
-               <Link
-                to="/contact"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-md font-semibold text-[14.5px] bg-amber text-navy-dark hover:bg-amber-dark transition-colors"
-                >
-                Contact the group
-              </Link>
-              </div>
-            </section>
+      <CollaborationCTA />
     </>
   );
 }

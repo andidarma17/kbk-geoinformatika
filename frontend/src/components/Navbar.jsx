@@ -113,12 +113,11 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
       <div className="max-w-6xl mx-auto px-6 md:px-8 py-3 flex items-center justify-between">
-        <Link to="/" className="flex flex-col leading-tight">
-          <span className="font-display font-bold text-navy text-[17px]">KBK Geoinformatika</span>
-          <span className="text-[11.5px] text-gray-500">Departemen Teknik Geodesi, UGM</span>
+        <Link to="/" className="shrink-0" aria-label="KBK Geoinformatika — Home">
+          <img src="/geoinfo.svg" alt="KBK Geoinformatika" width="1360" height="300" className="h-12 w-auto max-w-full object-contain" />
         </Link>
 
-        <nav className="hidden md:flex items-center gap-7">
+        <nav className="hidden lg:flex items-center gap-7">
           {navStructure.map((item) =>
             item.type === "dropdown" ? (
               <Dropdown key={item.label} item={item} openMenu={openMenu} setOpenMenu={setOpenMenu} pathname={location.pathname} />
@@ -142,7 +141,7 @@ export default function Navbar() {
         </nav>
 
         <button
-          className="md:hidden flex flex-col gap-1.5 p-1.5"
+          className="lg:hidden flex flex-col gap-1.5 p-1.5"
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
           onClick={() => setOpen((o) => !o)}
@@ -154,7 +153,7 @@ export default function Navbar() {
       </div>
 
       {open && (
-        <div className="md:hidden px-6 pb-4 border-t border-gray-200 flex flex-col">
+        <div className="lg:hidden px-6 pb-4 border-t border-gray-200 flex flex-col">
           {navStructure.map((item) =>
             item.type === "dropdown" ? (
               <div key={item.label} className="py-2.5 border-b border-gray-100">

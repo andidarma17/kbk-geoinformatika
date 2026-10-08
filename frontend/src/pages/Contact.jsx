@@ -1,3 +1,4 @@
+import PageHero from "../components/PageHero";
 import { api } from "../api";
 import { useRef, useState } from "react";
 import ErrorNotice from "../components/ErrorNotice";
@@ -37,7 +38,7 @@ export default function Contact() {
   
   return (
     <>
-      <section className="bg-navy text-white py-20">
+      <PageHero theme="contact" className="py-20">
         <div className="max-w-6xl mx-auto px-6 md:px-8">
           <div className="max-w-[720px]">
             <h1 className="font-display font-bold text-[34px] md:text-[44px] leading-tight">
@@ -48,7 +49,7 @@ export default function Contact() {
             </p>
           </div>
         </div>
-      </section>
+      </PageHero>
 
       <section className="py-16">
         <div className="max-w-6xl mx-auto px-6 md:px-8 grid md:grid-cols-2 gap-12">

@@ -1,3 +1,4 @@
+import CollaborationCTA from "../components/CollaborationCTA";
 import ErrorNotice from "../components/ErrorNotice";
 import OntologyDiagram from "../components/OntologyDiagram";
 import { useEffect, useState } from "react";
@@ -224,26 +225,7 @@ export default function Home() {
       </section>
 
       {/* CTA */}
-      <section id="contact" className="bg-navy-dark text-white">
-        <div className="max-w-6xl mx-auto px-6 md:px-8 py-14 flex flex-wrap items-center justify-between gap-6">
-          <div>
-            <h2 className="text-[26px] font-bold text-white max-w-[520px]">
-              Open to collaboration with academic, government, and industry
-              partners.
-            </h2>
-            <p className="text-blue-100/70 mt-2 text-[14.5px]">
-              Reach out to discuss research partnerships, student projects, or
-              applied geospatial work.
-            </p>
-          </div>
-         <Link
-          to="/contact"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-md font-semibold text-[14.5px] bg-amber text-navy-dark hover:bg-amber-dark transition-colors"
-          >
-          Contact the group
-        </Link>
-        </div>
-      </section>
+      <CollaborationCTA id="contact" />
     </>
   );
 }

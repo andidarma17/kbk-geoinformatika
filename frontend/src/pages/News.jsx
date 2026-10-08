@@ -1,3 +1,4 @@
+import PageHero from "../components/PageHero";
 import ErrorNotice from "../components/ErrorNotice";
 import { useEffect, useState } from "react";
 import { api } from "../api";
@@ -25,7 +26,7 @@ export default function News() {
 
   return (
     <>
-      <section className="bg-navy text-white py-20">
+      <PageHero theme="news" className="py-20">
         <div className="max-w-6xl mx-auto px-6 md:px-8">
           <div className="max-w-[720px]">
             <h1 className="font-display font-bold text-[34px] md:text-[44px] leading-tight">
@@ -36,7 +37,7 @@ export default function News() {
             </p>
           </div>
         </div>
-      </section>
+      </PageHero>
 
       <section className="py-16">
         <div className="max-w-6xl mx-auto px-6 md:px-8">

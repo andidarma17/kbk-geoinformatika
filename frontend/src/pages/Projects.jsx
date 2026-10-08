@@ -1,3 +1,4 @@
+import PageHero from "../components/PageHero";
 import ErrorNotice from "../components/ErrorNotice";
 import TaxonomyFilters from "../components/TaxonomyFilters";
 import { matchesTaxonomy } from "../taxonomy";
@@ -73,7 +74,7 @@ export default function Projects() {
 
   return (
     <>
-      <section className="bg-navy text-white py-20">
+      <PageHero theme="projects" className="py-20">
         <div className="max-w-6xl mx-auto px-6 md:px-8">
           <div className="max-w-[720px]">
             <h1 className="font-display font-bold text-[34px] md:text-[44px] leading-tight">
@@ -84,7 +85,7 @@ export default function Projects() {
             </p>
           </div>
         </div>
-      </section>
+      </PageHero>
 
       <section className="py-16">
         <div className="max-w-6xl mx-auto px-6 md:px-8">

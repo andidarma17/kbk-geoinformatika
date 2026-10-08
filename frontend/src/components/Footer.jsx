@@ -1,7 +1,14 @@
 import { Link } from "react-router-dom";
-import { EnvelopeIcon } from "@heroicons/react/24/solid";
-import { PhoneIcon } from "@heroicons/react/24/solid";
-import { MapPinIcon } from "@heroicons/react/24/solid";
+
+function ContactIcon({ kind }) {
+  const paths = {
+    email: "M3 5h18v14H3z M3 5l9 8 9-8",
+    phone: "M5 3h4l2 5-3 2a14 14 0 0 0 6 6l2-3 5 2v4a2 2 0 0 1-2 2C10 21 3 14 3 5a2 2 0 0 1 2-2Z",
+    location: "M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z M15 10a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z",
+  };
+  return <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"
+    strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 shrink-0 text-navy"><path d={paths[kind]} /></svg>;
+}
 
 export default function Footer() {
   return (
@@ -49,17 +56,17 @@ export default function Footer() {
           <div>
             <h4 className="text-[14px] text-navy font-extrabold mb-3.5">Contact</h4>
             <p className="flex items-center gap-2 mb-2.5">
-              <EnvelopeIcon className="w-5 h-5 text-navy" />
+              <ContactIcon kind="email" />
               <a href="mailto:geodesi@ugm.ac.id" className="text-sm text-gray-500 hover:text-navy">
                 geodesi@ugm.ac.id
               </a>
             </p>
             <p className="flex items-center gap-2 mb-2.5">
-              <PhoneIcon className="w-5 h-5 text-navy" />
+              <ContactIcon kind="phone" />
               <span className="text-sm text-gray-500">(+62274) 520226</span>
             </p>
             <p className="flex items-center gap-2 mb-2.5">
-              <MapPinIcon className="w-5 h-5 text-navy" />
+              <ContactIcon kind="location" />
               <span className="text-sm text-gray-500">Jl. Grafika No.2 Bulaksumur, 
                 <br />
                 Yogyakarta, 55281</span>

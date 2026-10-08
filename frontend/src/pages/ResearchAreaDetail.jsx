@@ -1,3 +1,4 @@
+import PageHero from "../components/PageHero";
 import ErrorNotice from "../components/ErrorNotice";
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
@@ -70,7 +71,7 @@ export default function ResearchAreaDetail() {
 
   return (
     <>
-      <section className="bg-navy text-white py-16">
+      <PageHero theme="research" className="py-16">
         <div className="max-w-6xl mx-auto px-6 md:px-8">
           <div className="max-w-[720px]">
             <Link to="/research" className="text-blue-100/70 text-sm font-semibold hover:text-white">
@@ -89,7 +90,7 @@ export default function ResearchAreaDetail() {
             </div>
           </div>
         </div>
-      </section>
+      </PageHero>
 
       <section className="max-w-6xl mx-auto px-6 md:px-8 pt-12">
         <h2 className="text-xl font-bold mb-4">Epistemology</h2>

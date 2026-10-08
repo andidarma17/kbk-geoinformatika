@@ -1,3 +1,4 @@
+import PageHero from "../components/PageHero";
 import ErrorNotice from "../components/ErrorNotice";
 import { Link, useParams } from "react-router-dom";
 import { api } from "../api";
@@ -23,7 +24,7 @@ export default function ProjectDetail() {
 
   return (
     <>
-      <section className="bg-navy text-white py-14">
+      <PageHero theme="projects" className="py-14">
         <div className="max-w-6xl mx-auto px-6 md:px-8">
           <div className="max-w-[820px]">
             <Link to="/projects" className="text-blue-100/70 text-sm font-semibold hover:text-white">
@@ -46,7 +47,7 @@ export default function ProjectDetail() {
             </h1>
           </div>
         </div>
-      </section>
+      </PageHero>
 
       <section className="py-14">
         <div className="max-w-6xl mx-auto px-6 md:px-8 grid md:grid-cols-[1fr_280px] gap-12">

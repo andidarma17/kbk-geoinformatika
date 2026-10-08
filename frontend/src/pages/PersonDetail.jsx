@@ -1,3 +1,4 @@
+import PageHero from "../components/PageHero";
 import ErrorNotice from "../components/ErrorNotice";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
@@ -38,10 +39,12 @@ export default function PersonDetail() {
   const education = (person.education || "").split("\n").map((s) => s.trim()).filter(Boolean);
   const interests = (person.interests || "").split("\n").map((s) => s.trim()).filter(Boolean);
   const scholarUrl = safeUrl(person.scholar_url);
+  const profileOrcidUrl = person.orcid?.trim() ? safeUrl(orcidUrl(person.orcid.trim())) : null;
+  const profileButtonClass = "inline-flex items-center justify-center min-h-11 px-4 py-2 rounded-md border border-navy/25 text-navy font-semibold hover:bg-navy hover:text-white transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy";
 
   return (
     <>
-      <section className="bg-navy text-white py-14">
+      <PageHero theme="people" className="py-14">
         <div className="max-w-6xl mx-auto px-6 md:px-8">
           <Link to="/people" className="text-blue-100/70 text-sm font-semibold hover:text-white">
             ← All People
@@ -66,13 +69,13 @@ export default function PersonDetail() {
           </p>
           {person.epistemology_name && <p className="mt-2 text-blue-100/80">Epistemology: {person.epistemology_name}</p>}
         </div>
-      </section>
+      </PageHero>
 
       <section className="py-14">
         <div className="max-w-6xl mx-auto px-6 md:px-8 grid md:grid-cols-[260px_1fr] gap-10">
           <aside>
-            <PersonPhoto person={person} className="w-full max-w-[260px] aspect-square rounded-lg mb-5" />
-            <div className="space-y-2 text-[14px]">
+            <PersonPhoto person={person} className="w-full max-w-[260px] aspect-square rounded-lg mb-5 mx-auto" />
+            <div className="space-y-3 text-[14px] text-center">
               {person.email && (
                 <div>
                   <a href={`mailto:${person.email}`} className="text-navy font-semibold break-all">
@@ -80,20 +83,18 @@ export default function PersonDetail() {
                   </a>
                 </div>
               )}
-              {person.orcid && (
-                <div>
-                  <a href={orcidUrl(person.orcid)} target="_blank" rel="noreferrer" className="text-navy font-semibold">
-                    ORCID
+              <div className="flex flex-wrap justify-center gap-2">
+                {profileOrcidUrl && (
+                  <a href={profileOrcidUrl} target="_blank" rel="noreferrer" className={profileButtonClass}>
+                    ORCID <span aria-hidden="true" className="ml-2">↗</span>
                   </a>
-                </div>
-              )}
-              {scholarUrl && (
-                <div>
-                  <a href={scholarUrl} target="_blank" rel="noreferrer" className="text-navy font-semibold">
-                    Google Scholar
+                )}
+                {scholarUrl && (
+                  <a href={scholarUrl} target="_blank" rel="noreferrer" className={profileButtonClass}>
+                    Google Scholar <span aria-hidden="true" className="ml-2">↗</span>
                   </a>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </aside>
 

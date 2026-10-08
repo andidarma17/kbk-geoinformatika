@@ -1,3 +1,4 @@
+import PageHero from "../components/PageHero";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api";
@@ -11,6 +12,7 @@ import { usePageMeta } from "../utils/usePageMeta";
 
 export default function WorkDirectory({ kind }) {
   const config = workTypes[kind];
+  const isIntellectualProperty = kind === "intellectual-property";
   usePageMeta({ title: config.title, description: config.description });
   const [items, setItems] = useState([]);
   const [areas, setAreas] = useState([]);
@@ -40,12 +42,12 @@ export default function WorkDirectory({ kind }) {
   [items, ontology, epistemology, search]);
 
   return <>
-    <section className="bg-navy text-white py-20">
+    <PageHero theme={kind} className="py-20">
       <div className="max-w-6xl mx-auto px-6 md:px-8">
         <h1 className="font-display font-bold text-[34px] md:text-[44px]">{config.title}</h1>
         <p className="mt-4 text-blue-100/80">{config.description}</p>
       </div>
-    </section>
+    </PageHero>
     <section className="max-w-6xl mx-auto px-6 md:px-8 py-14">
       {error ? <ErrorNotice /> : <>
         <div className="flex flex-wrap gap-5 items-end mb-8">
@@ -61,8 +63,12 @@ export default function WorkDirectory({ kind }) {
           {filtered.map((item) => <Link key={item.id} to={`/${kind}/${item.id}`}
             className="block bg-white border border-gray-200 hover:border-navy rounded-lg p-6">
             <h2 className="font-bold text-lg text-navy">{item.title}</h2>
-            <p className="mt-1 text-sm text-gray-500">{joinMeta(item.year, item.area_name, item.epistemology_name)}</p>
-            {item.summary && <p className="mt-3 text-gray-600 line-clamp-3">{item.summary}</p>}
+            {joinMeta(item.year, item.area_name, isIntellectualProperty ? item.ip_type : item.epistemology_name) &&
+              <p className="mt-1 text-sm text-gray-500">{joinMeta(item.year, item.area_name, isIntellectualProperty ? item.ip_type : item.epistemology_name)}</p>}
+            {isIntellectualProperty ? <>
+              {item.holders?.trim() && <p className="mt-3 text-sm text-gray-600"><span className="font-semibold">Inventors / Rights Holder: </span>{item.holders}</p>}
+              {item.status?.trim() && <p className="mt-2 text-sm text-gray-600"><span className="font-semibold">Status: </span>{item.status}</p>}
+            </> : item.summary && <p className="mt-3 text-gray-600 line-clamp-3">{item.summary}</p>}
             <span className="inline-block mt-3 text-sm font-semibold text-navy">View details →</span>
           </Link>)}
           {!loading && !filtered.length && <p className="col-span-full text-gray-500 text-center py-10">No records match this filter yet.</p>}
