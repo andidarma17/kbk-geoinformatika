@@ -1,6 +1,9 @@
 import { epistemologiesFor, validateClassification } from "../taxonomy";
 import { useEffect, useState } from "react";
 import { adminApi } from "./AdminApi";
+import { safeUrl } from "../utils/safeUrl";
+
+const URL_FIELDS = new Set(["doi_url", "pdf_url", "scholar_url", "photo_url", "external_url", "link"]);
 
 export default function ResourceManager({ resource, config, areas, researchers, epistemologies, onSaved }) {
   const readOnly = config.fields.length === 0;
@@ -39,12 +42,16 @@ export default function ResourceManager({ resource, config, areas, researchers, 
     setForm((f) => ({ ...f, [key]: value, ...(key === "research_area_id" ? { epistemology_id: "" } : {}) }));
   };
 
-  const handleSave = async () => {
+  const handleSave = async (event) => {
+    event.preventDefault();
     setLoading(true);
     setError("");
     try {
       for (const field of config.fields) {
         if (field.required && !String(form[field.key] ?? "").trim()) throw new Error(`${field.label} is required.`);
+        if (URL_FIELDS.has(field.key) && String(form[field.key] ?? "").trim() && !safeUrl(form[field.key])) {
+          throw new Error(`${field.label} must start with http:// or https://`);
+        }
       }
       validateClassification(form, epistemologies);
       const payload = Object.fromEntries(config.fields.map((field) => [field.key, form[field.key] ?? (field.type === "researcher-multiselect" ? [] : "")]));
@@ -89,11 +96,11 @@ export default function ResourceManager({ resource, config, areas, researchers, 
       </div>
 
       {error && (
-        <div className="bg-red-50 text-red-600 text-sm px-3 py-2 rounded mb-4">{error}</div>
+        <div role="alert" className="bg-red-50 text-red-600 text-sm px-3 py-2 rounded mb-4">{error}</div>
       )}
 
       {editing && (
-        <div className="bg-white border border-gray-200 rounded-lg p-5 mb-6">
+        <form onSubmit={handleSave} className="bg-white border border-gray-200 rounded-lg p-5 mb-6">
           <div className="grid gap-4 sm:grid-cols-2">
             {config.fields.map((field) => (
               <div
@@ -104,20 +111,23 @@ export default function ResourceManager({ resource, config, areas, researchers, 
     : ""
 }
               >
-                <label className="block text-xs font-semibold text-gray-500 mb-1">
-                  {field.label}
-                  {field.required && " *"}
-                </label>
+                {field.type === "researcher-multiselect" ? (
+                  <span id={`admin-${resource}-${field.key}-label`} className="block text-xs font-semibold text-gray-500 mb-1">{field.label}</span>
+                ) : (
+                  <label htmlFor={`admin-${resource}-${field.key}`} className="block text-xs font-semibold text-gray-500 mb-1">
+                    {field.label}{field.required && " *"}
+                  </label>
+                )}
 
                 {field.type === "textarea" ? (
-                  <textarea aria-label={field.label}
+                  <textarea id={`admin-${resource}-${field.key}`}
                     className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
                     rows={3}
                     value={form[field.key] || ""}
                     onChange={(e) => handleChange(field.key, e.target.value)}
                   />
                 ) : field.type === "select" ? (
-                  <select aria-label={field.label}
+                  <select id={`admin-${resource}-${field.key}`}
                     className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
                     value={form[field.key] || ""}
                     onChange={(e) => handleChange(field.key, e.target.value)}
@@ -130,7 +140,7 @@ export default function ResourceManager({ resource, config, areas, researchers, 
                     ))}
                   </select>
                 ) : field.type === "epistemology-select" ? (
-                  <select aria-label={field.label}
+                  <select id={`admin-${resource}-${field.key}`}
                     className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm disabled:bg-gray-100"
                     value={form[field.key] || ""} disabled={!form.research_area_id}
                     onChange={(e) => handleChange(field.key, e.target.value)}>
@@ -138,7 +148,7 @@ export default function ResourceManager({ resource, config, areas, researchers, 
                     {epistemologiesFor(epistemologies, form.research_area_id).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
                   </select>
                 ) : field.type === "area-select" ? (
-                  <select aria-label={field.label}
+                  <select id={`admin-${resource}-${field.key}`}
                     className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
                     value={form[field.key] || ""}
                     onChange={(e) => handleChange(field.key, Number(e.target.value) || "")}
@@ -151,7 +161,7 @@ export default function ResourceManager({ resource, config, areas, researchers, 
                     ))}
                   </select>
                                   ) : field.type === "researcher-multiselect" ? (
-                  <div className="border border-gray-300 rounded-md p-3 max-h-48 overflow-y-auto grid sm:grid-cols-2 gap-x-4 gap-y-1.5">
+                  <div role="group" aria-labelledby={`admin-${resource}-${field.key}-label`} className="border border-gray-300 rounded-md p-3 max-h-48 overflow-y-auto grid sm:grid-cols-2 gap-x-4 gap-y-1.5">
                     {researchers.map((r) => {
                       const selected = form.researcher_ids || [];
                       const checked = selected.includes(r.id);
@@ -175,14 +185,14 @@ export default function ResourceManager({ resource, config, areas, researchers, 
                       );
                     })}
                     {researchers.length === 0 && (
-                      <span className="text-sm text-gray-400">Add researchers first.</span>
+                      <span className="text-sm text-gray-500">Add researchers first.</span>
                     )}
                   </div>
                 ) : (
-                  <input aria-label={field.label}
-                    type={field.type === "number" ? "number" : "text"}
+                  <input id={`admin-${resource}-${field.key}`}
+                    type={field.type === "number" || field.type === "date" ? field.type : "text"}
                     className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
-                    value={form[field.key] || ""}
+                    value={field.type === "date" ? String(form[field.key] || "").slice(0, 10) : form[field.key] || ""}
                     onChange={(e) => handleChange(field.key, e.target.value)}
                   />
                 )}
@@ -192,20 +202,21 @@ export default function ResourceManager({ resource, config, areas, researchers, 
 
           <div className="flex gap-3 mt-5">
             <button
-              onClick={handleSave}
+              type="submit"
               disabled={loading}
               className="bg-amber text-navy-dark text-sm font-semibold px-4 py-2 rounded-md hover:bg-amber-dark disabled:opacity-60"
             >
               {loading ? "Saving…" : "Save"}
             </button>
             <button
+              type="button"
               onClick={cancel}
               className="text-sm font-semibold px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-50"
             >
               Cancel
             </button>
           </div>
-        </div>
+        </form>
       )}
 
       <div className="bg-white border border-gray-200 rounded-lg overflow-x-auto">
@@ -242,7 +253,7 @@ export default function ResourceManager({ resource, config, areas, researchers, 
             ))}
             {items.length === 0 && (
               <tr>
-                <td colSpan={config.columns.length + 1} className="px-4 py-6 text-center text-gray-400">
+                <td colSpan={config.columns.length + 1} className="px-4 py-6 text-center text-gray-500">
                   No items yet.
                 </td>
               </tr>

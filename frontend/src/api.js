@@ -1,65 +1,80 @@
 import { workTypes } from "./workTypes";
 import { supabase } from "./supabaseClient";
+import { entityConfig } from "./entityConfig";
+import { flatten } from "./utils/flatten";
 
 function check({ data, error }) {
   if (error) throw new Error(error.message);
   return data;
 }
 
-// Turns { research_areas: { name } } into a flat area_name field,
-// matching what the pages already expect.
-const flatten = (rows) =>
-  rows.map(({ research_areas, epistemologies, ...rest }) => ({
+async function getEntities(config, { limit, researchAreaId } = {}) {
+  let query = supabase.from(config.table)
+    .select("*, research_areas(name), epistemologies(name)")
+    .order("year", { ascending: false, nullsFirst: false });
+  if (researchAreaId != null) query = query.eq("research_area_id", researchAreaId);
+  if (limit != null) query = query.limit(limit);
+  return flatten(check(await query));
+}
+
+async function getEntity(config, id, { retainJunction = false } = {}) {
+  const row = check(await supabase.from(config.table)
+    .select(`*, research_areas(name, slug), epistemologies(name), ${config.junction}(researchers(id, name, role))`)
+    .eq("id", id).maybeSingle());
+  if (!row) return null;
+  const { [config.junction]: links, research_areas, epistemologies, ...rest } = row;
+  return {
     ...rest,
+    ...(retainJunction ? { [config.junction]: links } : {}),
     area_name: research_areas?.name ?? null,
     epistemology_name: epistemologies?.name ?? null,
-  }));
+    area_slug: retainJunction ? research_areas?.slug : research_areas?.slug ?? null,
+    researchers: links.map((link) => link.researchers).filter(Boolean),
+  };
+}
 
-async function count(table) {
-  const { count, error } = await supabase
+async function count(table, applyFilter = (query) => query) {
+  const query = supabase
     .from(table)
     .select("*", { count: "exact", head: true });
+  const { count, error } = await applyFilter(query);
   if (error) throw new Error(error.message);
   return count;
 }
 
 export const api = {
-  getEpistemologies: async () =>
-    check(await supabase.from("epistemologies").select("*").order("name")),
+  getEpistemologies: async ({ researchAreaId } = {}) => {
+    let query = supabase.from("epistemologies").select("*").order("name");
+    if (researchAreaId != null) query = query.eq("research_area_id", researchAreaId);
+    return check(await query);
+  },
 
-  getWorks: async (kind) => {
-    const config = workTypes[kind];
-    return flatten(check(await supabase.from(config.table)
-      .select("*, research_areas(name), epistemologies(name)")
-      .order("year", { ascending: false })));
+  getWorks: async (kind, { limit, researchAreaId } = {}) => {
+    const cfg = workTypes[kind];
+    if (!cfg) throw new Error(`Unknown work type: ${kind}`);
+    return getEntities(cfg, { limit, researchAreaId });
   },
 
   getWork: async (kind, id) => {
-    const config = workTypes[kind];
-    const row = check(await supabase.from(config.table)
-      .select(`*, research_areas(name, slug), epistemologies(name), ${config.junction}(researchers(id, name, role))`)
-      .eq("id", id).maybeSingle());
-    if (!row) return null;
-    return {
-      ...flatten([row])[0],
-      area_slug: row.research_areas?.slug,
-      researchers: row[config.junction].map((link) => link.researchers).filter(Boolean),
-    };
+    const cfg = workTypes[kind];
+    if (!cfg) throw new Error(`Unknown work type: ${kind}`);
+    return getEntity(cfg, id, { retainJunction: true });
   },
 
   getResearchAreas: async () =>
     check(await supabase.from("research_areas").select("*").order("id")),
 
-  // All researchers (used by Home, People, and the admin lists)
-  getResearchers: async () =>
-    flatten(
-      check(
-        await supabase
-          .from("researchers")
-          .select("*, research_areas(name), epistemologies(name)")
-          .order("id"),
-      ),
-    ),
+  getResearchAreaBySlug: async (slug) =>
+    check(await supabase.from("research_areas").select("*").eq("slug", slug).maybeSingle()),
+
+  getResearchers: async ({ limit, researchAreaId } = {}) => {
+    let query = supabase.from("researchers")
+      .select("*, research_areas(name), epistemologies(name)")
+      .order("id");
+    if (researchAreaId != null) query = query.eq("research_area_id", researchAreaId);
+    if (limit != null) query = query.limit(limit);
+    return flatten(check(await query));
+  },
 
   // One researcher with their projects and publications (used by the profile page)
   getResearcher: async (id) => {
@@ -109,89 +124,28 @@ export const api = {
     };
   },
 
-  getProjects: async () =>
-    flatten(
-      check(
-        await supabase
-          .from("projects")
-          .select("*, research_areas(name), epistemologies(name)")
-          .order("year", { ascending: false }),
-      ),
-    ),
+  getProjects: (options = {}) => getEntities(entityConfig.projects, options),
 
   // One project with its linked researchers (used by the project detail page)
-  getProject: async (id) => {
-    const row = check(
-      await supabase
-        .from("projects")
-        .select(
-          `*, research_areas(name, slug), epistemologies(name),
-           project_researchers(researchers(id, name, role))`,
-        )
-        .eq("id", id)
-        .maybeSingle(),
-    );
-    if (!row) return null;
-    const { research_areas, epistemologies, project_researchers, ...rest } = row;
-    return {
-      ...rest,
-      area_name: research_areas?.name ?? null,
-      epistemology_name: epistemologies?.name ?? null,
-      area_slug: research_areas?.slug ?? null,
-      researchers: project_researchers
-        .map((x) => x.researchers)
-        .filter(Boolean),
-    };
-  },
+  getProject: (id) => getEntity(entityConfig.projects, id),
 
-  getPublications: async () =>
-    flatten(
-      check(
-        await supabase
-          .from("publications")
-          .select("*, research_areas(name), epistemologies(name)")
-          .order("year", { ascending: false }),
-      ),
-    ),
+  getPublications: (options = {}) => getEntities(entityConfig.publications, options),
 
   // One publication with its linked researchers (used by the publication detail page)
-  getPublication: async (id) => {
-    const row = check(
-      await supabase
-        .from("publications")
-        .select(
-          `*, research_areas(name, slug), epistemologies(name),
-           publication_researchers(researchers(id, name, role))`,
-        )
-        .eq("id", id)
-        .maybeSingle(),
-    );
-    if (!row) return null;
-    const { research_areas, epistemologies, publication_researchers, ...rest } = row;
-    return {
-      ...rest,
-      area_name: research_areas?.name ?? null,
-      epistemology_name: epistemologies?.name ?? null,
-      area_slug: research_areas?.slug ?? null,
-      researchers: publication_researchers
-        .map((x) => x.researchers)
-        .filter(Boolean),
-    };
-  },
+  getPublication: (id) => getEntity(entityConfig.publications, id),
 
-  getNews: async () =>
-    check(
-      await supabase
-        .from("news")
-        .select("*")
-        .order("published_at", { ascending: false }),
-    ),
+  getNews: async ({ limit } = {}) => {
+    let query = supabase.from("news").select("*")
+      .order("published_at", { ascending: false });
+    if (limit != null) query = query.limit(limit);
+    return check(await query);
+  },
 
   getStats: async () => {
     const [areas, researchers, projects, publications] = await Promise.all([
       count("research_areas"),
       count("researchers"),
-      count("projects"),
+      count("projects", (query) => query.eq("status", "Active")),
       count("publications"),
     ]);
     return { areas, researchers, projects, publications };

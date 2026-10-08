@@ -16,7 +16,7 @@ export default function LabCard({ lab }) {
             className="w-full h-full object-cover"
           />
         ) : (
-          <span className="text-blue-100/60 text-sm font-semibold">Lab photo</span>
+          <span className="text-blue-100/75 text-sm font-semibold">Lab photo</span>
         )}
       </div>
       <div className="p-6">

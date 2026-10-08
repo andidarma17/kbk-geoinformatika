@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import PersonPhoto from "./PersonPhoto";
+import { joinMeta } from "../utils/joinMeta";
 
 export default function PersonCard({ person }) {
   return (
@@ -12,7 +13,7 @@ export default function PersonCard({ person }) {
         {person.name}
       </h4>
       <div className="text-[12.5px] text-navy my-1">
-        {person.role} &middot; {person.area_name}
+        {joinMeta(person.role, person.area_name)}
       </div>
       <div className="text-[12.5px] text-gray-500">{person.interests}</div>
     </Link>

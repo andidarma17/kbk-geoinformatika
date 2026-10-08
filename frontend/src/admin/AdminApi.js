@@ -1,21 +1,17 @@
 import { supabase } from "../supabaseClient";
+import { createWithLinks, syncLinks } from "./linkSync";
+import { adminWriteError } from "./adminWriteError";
+import { entityConfig } from "../entityConfig";
 
 // Admin tabs use hyphenated names ("research-areas"); tables use underscores.
 const toTable = (resource) => resource === "intellectual-property" ? "intellectual_properties" : resource.replaceAll("-", "_");
 
-// Tables whose rows can be linked to researchers, and their junction tables.
-const LINKS = {
-  intellectual_properties: { junction: "intellectual_property_researchers", fk: "intellectual_property_id" },
-  community_services: { junction: "community_service_researchers", fk: "community_service_id" },
-  projects: { junction: "project_researchers", fk: "project_id" },
-  publications: { junction: "publication_researchers", fk: "publication_id" },
-};
 const WITH_AREA = new Set(["researchers", "projects", "publications", "intellectual_properties", "community_services", "epistemologies"]);
 
 function selectFor(table) {
   if (!WITH_AREA.has(table)) return "*";
   if (table === "epistemologies") return "*, research_areas(name)";
-  const link = LINKS[table];
+  const link = entityConfig[table];
   return link
     ? `*, research_areas(name), epistemologies(name), ${link.junction}(researcher_id)`
     : "*, research_areas(name), epistemologies(name)";
@@ -23,7 +19,7 @@ function selectFor(table) {
 
 // Turns embedded rows into the flat fields the admin forms use.
 function flatten(table, rows) {
-  const link = LINKS[table];
+  const link = entityConfig[table];
   return rows.map((row) => {
     const out = { ...row };
     if ("research_areas" in out) {
@@ -60,27 +56,6 @@ function clean(data) {
   }
   if ("published_at" in rest && !rest.published_at) delete rest.published_at;
   return rest;
-}
-
-// Replaces the researcher links for one project/publication.
-async function syncLinks(table, id, researcherIds) {
-  const link = LINKS[table];
-  if (!link || !Array.isArray(researcherIds)) return;
-
-  const { error: delError } = await supabase
-    .from(link.junction)
-    .delete()
-    .eq(link.fk, id);
-  if (delError) throw new Error(delError.message);
-
-  if (researcherIds.length) {
-    const rows = researcherIds.map((rid) => ({
-      [link.fk]: id,
-      researcher_id: rid,
-    }));
-    const { error } = await supabase.from(link.junction).insert(rows);
-    if (error) throw new Error(error.message);
-  }
 }
 
 export const adminApi = {
@@ -129,13 +104,7 @@ export const adminApi = {
 
   create: async (resource, data) => {
     const table = toTable(resource);
-    const { data: row, error } = await supabase
-      .from(table)
-      .insert(clean(data))
-      .select("id")
-      .single();
-    if (error) throw new Error(error.message);
-    await syncLinks(table, row.id, data.researcher_ids);
+    await createWithLinks(supabase, table, clean(data), entityConfig[table], data.researcher_ids);
   },
 
   update: async (resource, id, data) => {
@@ -145,12 +114,12 @@ export const adminApi = {
       .update(clean(data))
       .eq("id", id)
       .select("id");
-    if (error) throw new Error(error.message);
+    if (error) throw adminWriteError(error);
     if (!rows.length)
       throw new Error(
         "Update was not allowed. Are you signed in as the admin?",
       );
-    await syncLinks(table, id, data.researcher_ids);
+    await syncLinks(supabase, entityConfig[table], id, data.researcher_ids);
   },
 
   remove: async (resource, id) => {
@@ -159,7 +128,7 @@ export const adminApi = {
       .delete()
       .eq("id", id)
       .select("id");
-    if (error) throw new Error(error.message);
+    if (error) throw adminWriteError(error);
     if (!rows.length)
       throw new Error(
         "Delete was not allowed. Are you signed in as the admin?",

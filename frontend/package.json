@@ -2,6 +2,9 @@
   "name": "kbk-geoinformatika-frontend",
   "version": "1.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "test": "node --test tests/*.test.js",
     "dev": "vite",

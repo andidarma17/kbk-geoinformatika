@@ -1,9 +1,13 @@
+import PageHero from "../components/PageHero";
+import ErrorNotice from "../components/ErrorNotice";
 import TaxonomyFilters from "../components/TaxonomyFilters";
 import { matchesTaxonomy } from "../taxonomy";
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../api";
 import SectionHeader from "../components/SectionHeader";
 import PersonCard from "../components/PersonCard";
+import LoadingSkeleton from "../components/LoadingSkeleton";
+import { usePageMeta } from "../utils/usePageMeta";
 
 function FilterGroup({ label, options, value, onChange, activeClass }) {
   return (
@@ -29,6 +33,7 @@ function FilterGroup({ label, options, value, onChange, activeClass }) {
 }
 
 export default function People() {
+  usePageMeta({ title: "People", description: "Meet the researchers of KBK Geoinformatika and explore their areas of study." });
   const [areas, setAreas] = useState([]);
   const [researchers, setResearchers] = useState([]);
   const [roleFilter, setRoleFilter] = useState("All");
@@ -36,11 +41,15 @@ export default function People() {
   const [epistemologyFilter, setEpistemologyFilter] = useState("");
   const [epistemologies, setEpistemologies] = useState([]);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let active = true;
     Promise.all([api.getResearchers(), api.getResearchAreas(), api.getEpistemologies()])
-      .then(([r, a, e]) => { setResearchers(r); setAreas(a); setEpistemologies(e); })
-      .catch((e) => setError(e.message));
+      .then(([r, a, e]) => { if (active) { setResearchers(r); setAreas(a); setEpistemologies(e); } })
+      .catch((e) => { if (active) { console.error("Failed to load content:", e); setError(true); } })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, []);
 
   const roles = useMemo(() => {
@@ -58,26 +67,22 @@ export default function People() {
     [researchers, roleFilter, areaFilter, epistemologyFilter]
   );
 
-  if (error) {
-    return (
-      <div className="max-w-6xl mx-auto px-6 md:px-8 py-16 text-center text-gray-500">
-        Couldn't load people from the API. {error}
-      </div>
-    );
-  }
+  if (error) return <ErrorNotice />;
 
   return (
     <>
-      <section className="bg-navy text-white py-20">
-        <div className="max-w-6xl mx-auto px-6 md:px-8 max-w-[720px]">
-          <h1 className="font-display font-bold text-[34px] md:text-[44px] leading-tight">
-            People
-          </h1>
-          <p className="mt-5 text-[17px] text-blue-100/80">
-            Lecturers, researchers, and students working across our Ontologies.
-          </p>
+      <PageHero theme="people" className="py-20">
+        <div className="max-w-6xl mx-auto px-6 md:px-8">
+          <div className="max-w-[720px]">
+            <h1 className="font-display font-bold text-[34px] md:text-[44px] leading-tight">
+              People
+            </h1>
+            <p className="mt-5 text-[17px] text-blue-100/80">
+              Lecturers, researchers, and students working across our Ontologies.
+            </p>
+          </div>
         </div>
-      </section>
+      </PageHero>
 
       <section className="py-16">
         <div className="max-w-6xl mx-auto px-6 md:px-8">
@@ -95,11 +100,12 @@ export default function People() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {loading && <LoadingSkeleton count={4} />}
             {filtered.map((person) => (
               <PersonCard key={person.id} person={person} />
             ))}
-            {filtered.length === 0 && (
-              <p className="text-gray-400 col-span-full text-center py-10">
+            {!loading && filtered.length === 0 && (
+              <p className="text-gray-500 col-span-full text-center py-10">
                 No one matches this filter yet.
               </p>
             )}

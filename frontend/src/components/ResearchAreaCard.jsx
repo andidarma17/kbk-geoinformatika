@@ -4,7 +4,7 @@ export default function ResearchAreaCard({ area }) {
       <h3 className="text-[19px] font-bold mb-2.5">{area.name}</h3>
       <p className="text-gray-500 text-[14.5px] mb-4">{area.description}</p>
       <div className="flex flex-wrap gap-2">
-        {area.tags.map((tag) => (
+        {(area.tags || []).map((tag) => (
           <span
             key={tag}
             className="text-xs font-medium text-navy border border-navy/40 rounded-full px-2.5 py-0.5"
@@ -13,9 +13,9 @@ export default function ResearchAreaCard({ area }) {
           </span>
         ))}
       </div>
-      <a href="#" className="inline-block mt-4 text-[13.5px] font-semibold text-navy">
+      <span className="inline-block mt-4 text-[13.5px] font-semibold text-navy">
         View researchers &amp; projects
-      </a>
+      </span>
     </div>
   );
 }
