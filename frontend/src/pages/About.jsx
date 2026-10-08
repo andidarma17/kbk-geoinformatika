@@ -1,6 +1,7 @@
 import SectionHeader from "../components/SectionHeader";
 import MockFlag from "../components/MockFlag";
 import { usePageMeta } from "../utils/usePageMeta";
+import { Link } from "react-router-dom";
 
 const timeline = [
   { year: "[Year]", label: "Group established within Departemen Teknik Geodesi" },
@@ -231,14 +232,25 @@ export default function About() {
       </section> */}
 
       <section className="bg-navy-dark text-white">
-        <div className="max-w-6xl mx-auto px-6 md:px-8 py-12">
-          <h2 className="text-[22px] font-bold mb-2">Institutional affiliation</h2>
-          <p className="text-blue-100/70 text-[15px] max-w-2xl">
-            Departemen Teknik Geodesi, Fakultas Teknik, Universitas Gadjah
-            Mada, Yogyakarta, Indonesia.
-          </p>
-        </div>
-      </section>
+              <div className="max-w-6xl mx-auto px-6 md:px-8 py-14 flex flex-wrap items-center justify-between gap-6">
+                <div>
+                  <h2 className="text-[26px] font-bold text-white max-w-[520px]">
+                    Open to collaboration with academic, government, and industry
+                    partners.
+                  </h2>
+                  <p className="text-blue-100/70 mt-2 text-[14.5px]">
+                    Reach out to discuss research partnerships, student projects, or
+                    applied geospatial work.
+                  </p>
+                </div>
+               <Link
+                to="/contact"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-md font-semibold text-[14.5px] bg-amber text-navy-dark hover:bg-amber-dark transition-colors"
+                >
+                Contact the group
+              </Link>
+              </div>
+            </section>
     </>
   );
 }

@@ -63,18 +63,13 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-6 md:px-8 grid md:grid-cols-[1.1fr_1fr] gap-14">
           <div>
             <h2 className="text-[27px] font-bold mb-4">
-              Two disciplines, one question: how is space changing?
+              Four disciplines, one vision: engineering spatial intelligence from land to sky.
             </h2>
             <p className="text-gray-500 text-[15.5px] mb-3.5">
-              Our work sits at the intersection of geographic information
-              science and remote observation. We build spatial data, analyze
-              it, and put it in front of the people who plan cities, manage
-              coastlines, and respond to environmental change.
+              Our research group converges the domains of Cadaster, Geospatial Visualization, Photogrammetric Engineering, and Remote Sensing. On one side, we capture and reconstruct the physical environment using active and passive earth observation, UAV photogrammetry, and precise LiDAR mapping. On the other, we structure and deliver this spatial reality through robust land informatics, geospatial web infrastructures, and advanced spatial databases.
             </p>
             <p className="text-gray-500 text-[15.5px] mb-3.5">
-              Current work spans address and cadastral data quality, urban
-              accessibility, coastal heat and land change, and the geospatial
-              dimensions of maritime boundaries.
+              Current focus areas span sustainable land management, large-scale geocomputational modeling, spatial data interoperability, and 3D topographic reconstruction. By integrating high-resolution earth observation with rigorous land administration frameworks, we transform raw geographic geometries into interactive, actionable platforms for spatial planning and decision-making.
             </p>
           </div>
           {errors.stats ? <ErrorNotice className="self-center text-gray-600" /> : (
