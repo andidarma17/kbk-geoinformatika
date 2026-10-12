@@ -2,4 +2,4 @@ User-agent: *
 Disallow: /admin
 
 # TODO: Replace this placeholder with the final production domain before deployment.
-Sitemap: https://REPLACE-WITH-FINAL-DOMAIN.example/sitemap.xml
+Sitemap: https://kbk-geoinformatika.netlify.app//sitemap.xml
