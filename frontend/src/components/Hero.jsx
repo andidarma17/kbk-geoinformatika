@@ -72,7 +72,7 @@ export default function Hero() {
           Understanding place through data, from the field to the map.
         </h1>
         <p className="mt-5 text-[17.5px] text-blue-100/80 max-w-[600px]">
-          KBK Geoinformatika is the geoinformatics research group within the
+          KBK Teknik Geoinformatika is the geoinformatics engineering research group within the
           Department of Geodetic Engineering, Universitas Gadjah Mada, working
           across GIS, photogrammetry, and remote sensing to study Indonesia's
           cities, coasts, and landscapes.

@@ -7,14 +7,14 @@ import { usePageMeta } from "../utils/usePageMeta";
 // Put photos in frontend/public/labs/ and reference them as "/labs/xxx.jpg"
 const labs = [
   {
-    name: "Laboratory of Geoinformatics",
-    image: "/labs/geoinformatics.jpg",
+    name: "Laboratory of Cadastre and Geoinformatics Engineering",
+    image: "https://geodesi.ugm.ac.id/wp-content/uploads/sites/8/2026/07/CAGE-2.png",
     description:
       "[Placeholder] Spatial database management, GIS analysis, cadastral and address data work, and WebGIS development.",
     focus: ["GIS", "Cadastre", "WebGIS"]
   },
   {
-    name: "Laboratory of Photogrammetry and Remote Sensing",
+    name: "Laboratory of Photogrammetry Engineering and Remote Sensing",
     image: "/labs/photogrammetry-rs.jpg",
     description:
       "[Placeholder] UAV photogrammetry, satellite image processing, and time-series analysis of land and coastal change.",
@@ -72,7 +72,7 @@ export default function Facilities() {
               Facilities &amp; Resources
             </h1>
             <p className="mt-5 text-[17px] text-blue-100/80">
-              Laboratories, software, equipment, and data resources supporting our research in geoinformatics, photogrammetry, and remote sensing.
+              Laboratories, software, equipment, and data resources supporting our research in cadastre, geoinformatics, photogrammetry, and remote sensing.
             </p>
           </div>
         </div>

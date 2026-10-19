@@ -13,14 +13,14 @@ const timeline = [
 ];
 
 export default function About() {
-  usePageMeta({ title: "About", description: "Learn about KBK Geoinformatika and its geoinformatics research at Universitas Gadjah Mada." });
+  usePageMeta({ title: "About", description: "Learn about KBK Teknik Geoinformatika and its geoinformatics research at Universitas Gadjah Mada." });
   return (
     <>
       <PageHero theme="about" className="py-20">
         <div className="max-w-6xl mx-auto px-6 md:px-8">
           <div className="max-w-[720px]">
             <h1 className="font-display font-extrabold text-[34px] md:text-[44px] leading-tight">
-              About KBK Geoinformatika
+              About KBK Teknik Geoinformatika
             </h1>
             <h3 className="mt-2 text-[32px] leading-tight font-extrabold text-amber-400 mb-6">
             "Engineering spatial intelligence from land to sky."
@@ -81,7 +81,7 @@ export default function About() {
         </div>
         <h4 className="text-xl font-bold text-gray-900 mb-4">Vision</h4>
         <p className="text-gray-600 text-[15.5px] leading-relaxed">
-          To become a world-class center of excellence in Geoinformatics, pioneering innovative spatial intelligence through the integration of earth observation, geospatial systems, and land administration, dedicated to the sustainable development of the nation and humanity based on Pancasila values.
+          To become a world-class center of excellence in Geoinformatics Engineering, pioneering innovative spatial intelligence through the integration of earth observation, geospatial systems, and land administration, dedicated to the sustainable development of the nation and humanity based on Pancasila values.
         </p>
       </div>
 
@@ -112,7 +112,7 @@ export default function About() {
             <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-blue-50 text-blue-600 font-bold text-sm mr-4">3</span>
             <div>
               <h5 className="text-gray-900 font-semibold mb-1">Community Service & Impact</h5>
-              <p className="text-gray-600 text-sm leading-relaxed">To actively apply geoinformatics technologies and spatial platforms to support spatial planning and the achievement of Sustainable Development Goals (SDGs).</p>
+              <p className="text-gray-600 text-sm leading-relaxed">To actively apply geoinformatics engineering technologies and spatial platforms to support spatial planning and the achievement of Sustainable Development Goals (SDGs).</p>
             </div>
           </li>
         </ul>

@@ -24,10 +24,10 @@ export default function Footer() {
               className="h-20 w-auto mb-4" 
             />
 
-            {/* If your logo already has the words "KBK Geoinformatika" in the image, 
+            {/* If your logo already has the words "KBK Teknik Geoinformatika" in the image, 
                 you can delete this next <div> entirely! */}
             <div className="font-display font-bold text-navy text-base mb-2">
-              KBK Geoinformatika
+              KBK Teknik Geoinformatika
             </div>
             
             <p className="text-sm text-gray-500 leading-relaxed">
@@ -75,7 +75,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="border-t border-gray-200 pt-5 flex flex-wrap justify-between gap-2 text-xs text-gray-500">
-          <span>&copy; 2026 KBK Geoinformatika, Departemen Teknik Geodesi UGM</span>
+          <span>&copy; 2026 KBK Teknik Geoinformatika, Departemen Teknik Geodesi UGM</span>
           <span>Placeholder site — content under development</span>
         </div>
       </div>
